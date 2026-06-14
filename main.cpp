@@ -2,32 +2,49 @@
 
 #include "lexer/Lexer.h"
 #include "parser/Parser.h"
+#include "runtime/Interpreter.h"
 
 int main()
 {
-    Lexer lexer(
-        "identity(123)"
-    );
+    std::string source =
+R"(
+
+function identity(x)
+{
+    return x;
+}
+
+)";
+
+    Lexer lexer(source);
 
     auto tokens =
         lexer.tokenize();
 
     Parser parser(tokens);
 
-    auto expression =
-        parser.parseExpression();
+    auto program =
+        parser.parseProgram();
 
-    if (
-        dynamic_cast<
-            CallExpression*>(
-                expression.get()
-            )
-    )
-    {
-        std::cout
-            << "Call parsed"
-            << std::endl;
-    }
+    Interpreter interpreter;
+
+    interpreter.executeProgram(
+        program.get()
+    );
+
+    auto result =
+        interpreter.callFunction(
+            "identity",
+            {
+                JSValue(777.0)
+            }
+        );
+
+    std::cout
+        << std::get<double>(
+            result.value
+        )
+        << std::endl;
 
     return 0;
 }
