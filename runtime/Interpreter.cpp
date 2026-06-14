@@ -145,6 +145,29 @@ JSValue Interpreter::evaluate(
             return JSValue(lhs != rhs);
     }
 
+    if (auto call =
+    dynamic_cast<
+        CallExpression*>(
+            expression))
+    {
+        std::vector<JSValue> args;
+
+        for (auto& argument :
+            call->arguments)
+        {
+            args.push_back(
+                evaluate(
+                    argument.get()
+                )
+            );
+        }
+
+        return callFunction(
+            call->callee,
+            args
+        );
+    }
+
     throw std::runtime_error(
         "Unsupported expression");
 }
@@ -280,6 +303,45 @@ JSValue Interpreter::callFunction(
     const std::string& name,
     const std::vector<JSValue>& arguments)
 {
+    if (name == "console.log")
+    {
+        if (!arguments.empty())
+        {
+            const JSValue& value =
+                arguments[0];
+
+            if (std::holds_alternative<double>(
+                    value.value))
+            {
+                std::cout
+                    << std::get<double>(
+                        value.value)
+                    << std::endl;
+            }
+            else if (
+                std::holds_alternative<bool>(
+                    value.value))
+            {
+                std::cout
+                    << std::get<bool>(
+                        value.value)
+                    << std::endl;
+            }
+            else if (
+                std::holds_alternative<
+                    std::string>(
+                    value.value))
+            {
+                std::cout
+                    << std::get<std::string>(
+                        value.value)
+                    << std::endl;
+            }
+        }
+
+        return JSValue(0.0);
+    }
+
     auto function =
         environment.getFunction(
             name

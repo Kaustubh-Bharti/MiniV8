@@ -1,52 +1,33 @@
 #include <iostream>
 
-#include "runtime/Interpreter.h"
-#include "ast/AST.h"
+#include "lexer/Lexer.h"
+#include "parser/Parser.h"
 
 int main()
 {
-    Interpreter interpreter;
-
-    auto function =
-        std::make_unique<
-            FunctionDeclaration>(
-                "identity"
-            );
-
-    function->parameters.push_back(
-        "x"
+    Lexer lexer(
+        "identity(123)"
     );
 
-    function->body =
-        std::make_unique<
-            BlockStatement>();
+    auto tokens =
+        lexer.tokenize();
 
-    function->body
-        ->statements.push_back(
-            std::make_unique<
-                ReturnStatement>(
-                    std::make_unique<
-                        Identifier>("x")
-                )
-        );
+    Parser parser(tokens);
 
-    interpreter.execute(
-        function.get()
-    );
+    auto expression =
+        parser.parseExpression();
 
-    auto result =
-        interpreter.callFunction(
-            "identity",
-            {
-                JSValue(99.0)
-            }
-        );
-
-    std::cout
-        << std::get<double>(
-            result.value
-        )
-        << std::endl;
+    if (
+        dynamic_cast<
+            CallExpression*>(
+                expression.get()
+            )
+    )
+    {
+        std::cout
+            << "Call parsed"
+            << std::endl;
+    }
 
     return 0;
 }

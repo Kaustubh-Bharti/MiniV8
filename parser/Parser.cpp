@@ -73,11 +73,26 @@ std::unique_ptr<Expression> Parser::parsePrimary()
         );
     }
 
-    if (match(TokenType::Identifier))
+    if (check(TokenType::Identifier))
     {
-        return std::make_unique<Identifier>(
-            previous().value
-        );
+        if (
+            current + 1 <
+            tokens.size()
+            &&
+            tokens[current + 1].type
+                ==
+            TokenType::LeftParen
+        )
+        {
+            return parseCallExpression();
+        }
+
+        match(TokenType::Identifier);
+
+        return std::make_unique<
+            Identifier>(
+                previous().value
+            );
     }
 
     if (match(TokenType::True))
@@ -558,5 +573,53 @@ std::unique_ptr<Program> Parser::parseProgram()
     }
 
     return program;
+}
+
+std::unique_ptr<CallExpression> Parser::parseCallExpression()
+{
+    if (!match(TokenType::Identifier))
+    {
+        return nullptr;
+    }
+
+    std::string callee =
+        previous().value;
+
+    if (!match(TokenType::LeftParen))
+    {
+        return nullptr;
+    }
+
+    auto call =
+        std::make_unique<
+            CallExpression>(
+                callee
+            );
+
+    while (
+        !check(TokenType::RightParen)
+    )
+    {
+        auto argument =
+            parseExpression();
+
+        if (!argument)
+        {
+            return nullptr;
+        }
+
+        call->arguments.push_back(
+            std::move(argument)
+        );
+
+        if (!check(TokenType::RightParen))
+        {
+            match(TokenType::Comma);
+        }
+    }
+
+    match(TokenType::RightParen);
+
+    return call;
 }
 
