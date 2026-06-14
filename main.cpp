@@ -7,35 +7,27 @@ int main()
 {
     Interpreter interpreter;
 
-    interpreter
-        .getEnvironment()
-        .define(
-            "x",
-            JSValue(5.0)
-        );
-
-    auto expression =
+    auto condition =
         std::make_unique<
             BinaryExpression>(
                 std::make_unique<
-                    Identifier>("x"),
+                    NumberLiteral>(5),
 
-                "+",
+                ">",
 
                 std::make_unique<
-                    NumberLiteral>(10)
+                    NumberLiteral>(2)
             );
 
-    auto result =
-        interpreter.evaluate(
-            expression.get()
-        );
+    auto whileStatement =
+        std::make_unique<
+            WhileStatement>(
+                std::move(condition)
+            );
 
-    std::cout
-        << std::get<double>(
-            result.value
-        )
-        << std::endl;
+    interpreter.execute(
+        whileStatement.get()
+    );
 
     return 0;
 }

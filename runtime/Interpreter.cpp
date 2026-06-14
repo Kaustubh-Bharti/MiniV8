@@ -1,6 +1,29 @@
 #include "Interpreter.h"
 #include <variant>
 #include <stdexcept>
+#include <iostream>
+
+bool isTruthy(const JSValue& value)
+{
+    if (std::holds_alternative<bool>(value.value))
+    {
+        return std::get<bool>(value.value);
+    }
+
+    if (std::holds_alternative<double>(value.value))
+    {
+        return std::get<double>(value.value) != 0;
+    }
+
+    if (std::holds_alternative<std::string>(value.value))
+    {
+        return !std::get<std::string>(
+            value.value
+        ).empty();
+    }
+
+    return false;
+}
 
 JSValue Interpreter::evaluate(
     Expression* expression)
@@ -152,6 +175,25 @@ void Interpreter::execute(
         return;
     }
 
+    if (auto ifStatement =
+        dynamic_cast<
+            IfStatement*>(
+                statement))
+    {
+        JSValue condition =
+            evaluate(
+                ifStatement
+                    ->condition.get()
+            );
+
+        if (isTruthy(condition))
+        {
+            std::cout<< "IF EXECUTED"<< std::endl;
+        }
+
+        return;
+    }
+
     if (auto expressionStatement =
     dynamic_cast<
         ExpressionStatement*>(
@@ -161,6 +203,30 @@ void Interpreter::execute(
             expressionStatement
                 ->expression.get()
         );
+
+        return;
+    }
+
+    if (auto whileStatement =
+        dynamic_cast<
+            WhileStatement*>(
+                statement))
+    {
+        while (
+            isTruthy(
+                evaluate(
+                    whileStatement
+                        ->condition.get()
+                )
+            )
+        )
+        {
+            std::cout
+                << "WHILE ITERATION"
+                << std::endl;
+
+            break;
+        }
 
         return;
     }
