@@ -91,6 +91,7 @@ private:
     size_t current;
 
     char peek() const;
+    char peekNext() const;
     char advance();
     bool isAtEnd() const;
     bool match(char expected);

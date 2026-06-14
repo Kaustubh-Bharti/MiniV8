@@ -5,12 +5,16 @@
 int main()
 {
     Lexer lexer(
-        "3.14 0.5 10.25"
+        "/*\n"
+        "multi line\n"
+        "comment\n"
+        "*/\n"
+        "let x = 5;"
     );
 
     auto tokens = lexer.tokenize();
 
-    for (const auto& token : tokens)
+    for(const auto& token : tokens)
     {
         std::cout
             << tokenTypeToString(token.type)

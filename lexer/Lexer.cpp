@@ -145,8 +145,37 @@ std::vector<Token> Lexer::tokenize()
             break;
 
         case '/':
-            addToken(tokens, TokenType::Slash);
+        {
+            if (match('/'))
+            {
+                while (!isAtEnd() &&
+                    peek() != '\n')
+                {
+                    advance();
+                }
+            }
+            else if (match('*'))
+            {
+                while (!isAtEnd())
+                {
+                    if (peek() == '*' &&
+                        peekNext() == '/')
+                    {
+                        advance();
+                        advance();
+                        break;
+                    }
+
+                    advance();
+                }
+            }
+            else
+            {
+                addToken(tokens, TokenType::Slash);
+            }
+
             break;
+        }
 
         case '%':
             addToken(tokens, TokenType::Percent);
@@ -227,6 +256,16 @@ char Lexer::peek() const
     }
 
     return source[current];
+}
+
+char Lexer::peekNext() const
+{
+    if (current + 1 >= source.length())
+    {
+        return '\0';
+    }
+
+    return source[current + 1];
 }
 
 char Lexer::advance()
