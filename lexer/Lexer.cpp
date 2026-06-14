@@ -295,6 +295,18 @@ std::string Lexer::readNumber()
         result += advance();
     }
 
+    if (!isAtEnd() &&
+        peek() == '.')
+    {
+        result += advance();
+
+        while (!isAtEnd() &&
+               isDigit(peek()))
+        {
+            result += advance();
+        }
+    }
+
     return result;
 }
 

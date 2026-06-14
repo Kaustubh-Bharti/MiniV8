@@ -5,11 +5,7 @@
 int main()
 {
     Lexer lexer(
-        "let num = 7;"
-        "if (num % 2 === 0)"
-        "{"
-        "console.log(\"Even\");"
-        "}"
+        "3.14 0.5 10.25"
     );
 
     auto tokens = lexer.tokenize();
