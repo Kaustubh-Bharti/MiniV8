@@ -49,6 +49,8 @@ public:
 
     std::unique_ptr<WhileStatement> parseWhileStatement();
 
+    std::unique_ptr<ForStatement> parseForStatement();
+
     std::unique_ptr<FunctionDeclaration> parseFunctionDeclaration();
 
     std::unique_ptr<ReturnStatement> parseReturnStatement();

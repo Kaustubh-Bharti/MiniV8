@@ -325,19 +325,34 @@ std::unique_ptr<IfStatement> Parser::parseIfStatement()
         return nullptr;
     }
 
-    if (!match(TokenType::LeftBrace))
+    auto thenBranch =
+        parseBlockStatement();
+
+    if (!thenBranch)
     {
         return nullptr;
     }
 
-    if (!match(TokenType::RightBrace))
+    std::unique_ptr<
+        BlockStatement> elseBranch =
+            nullptr;
+
+    if (match(TokenType::Else))
     {
-        return nullptr;
+        elseBranch =
+            parseBlockStatement();
+
+        if (!elseBranch)
+        {
+            return nullptr;
+        }
     }
 
     return std::make_unique<
         IfStatement>(
-            std::move(condition)
+            std::move(condition),
+            std::move(thenBranch),
+            std::move(elseBranch)
         );
 }
 
@@ -366,19 +381,18 @@ std::unique_ptr<WhileStatement> Parser::parseWhileStatement()
         return nullptr;
     }
 
-    if (!match(TokenType::LeftBrace))
-    {
-        return nullptr;
-    }
+    auto body =
+        parseBlockStatement();
 
-    if (!match(TokenType::RightBrace))
+    if (!body)
     {
         return nullptr;
     }
 
     return std::make_unique<
         WhileStatement>(
-            std::move(condition)
+            std::move(condition),
+            std::move(body)
         );
 }
 
@@ -539,6 +553,11 @@ std::unique_ptr<Statement> Parser::parseStatement()
         return parseWhileStatement();
     }
 
+    if (check(TokenType::For))
+    {
+        return parseForStatement();
+    }
+
     if (check(TokenType::Function))
     {
         return parseFunctionDeclaration();
@@ -623,3 +642,66 @@ std::unique_ptr<CallExpression> Parser::parseCallExpression()
     return call;
 }
 
+std::unique_ptr<ForStatement>
+Parser::parseForStatement()
+{
+    if (!match(TokenType::For))
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::LeftParen))
+    {
+        return nullptr;
+    }
+
+    auto initializer =
+        parseVariableDeclaration();
+
+    if (!initializer)
+    {
+        return nullptr;
+    }
+
+    auto condition =
+        parseExpression();
+
+    if (!condition)
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::Semicolon))
+    {
+        return nullptr;
+    }
+
+    auto increment =
+        parseExpression();
+
+    if (!increment)
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::RightParen))
+    {
+        return nullptr;
+    }
+
+    auto body =
+        parseBlockStatement();
+
+    if (!body)
+    {
+        return nullptr;
+    }
+
+    return std::make_unique<
+        ForStatement>(
+            std::move(initializer),
+            std::move(condition),
+            std::move(increment),
+            std::move(body)
+        );
+}

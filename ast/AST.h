@@ -152,10 +152,24 @@ class IfStatement : public Statement
 public:
     std::unique_ptr<Expression> condition;
 
-    explicit IfStatement(
-        std::unique_ptr<Expression> condition)
+    std::unique_ptr<BlockStatement>
+        thenBranch;
+
+    std::unique_ptr<BlockStatement>
+        elseBranch;
+
+    IfStatement(
+        std::unique_ptr<Expression> condition,
+        std::unique_ptr<BlockStatement>
+            thenBranch,
+        std::unique_ptr<BlockStatement>
+            elseBranch = nullptr)
         : condition(
-            std::move(condition))
+              std::move(condition)),
+          thenBranch(
+              std::move(thenBranch)),
+          elseBranch(
+              std::move(elseBranch))
     {
     }
 };
@@ -165,10 +179,51 @@ class WhileStatement : public Statement
 public:
     std::unique_ptr<Expression> condition;
 
-    explicit WhileStatement(
-        std::unique_ptr<Expression> condition)
+    std::unique_ptr<BlockStatement> body;
+
+    WhileStatement(
+        std::unique_ptr<Expression> condition,
+        std::unique_ptr<BlockStatement> body)
         : condition(
-            std::move(condition))
+            std::move(condition)),
+          body(
+            std::move(body))
+    {
+    }
+};
+
+class ForStatement : public Statement
+{
+public:
+    std::unique_ptr<Statement>
+        initializer;
+
+    std::unique_ptr<Expression>
+        condition;
+
+    std::unique_ptr<Expression>
+        increment;
+
+    std::unique_ptr<BlockStatement>
+        body;
+
+    ForStatement(
+        std::unique_ptr<Statement>
+            initializer,
+        std::unique_ptr<Expression>
+            condition,
+        std::unique_ptr<Expression>
+            increment,
+        std::unique_ptr<BlockStatement>
+            body)
+        : initializer(
+              std::move(initializer)),
+          condition(
+              std::move(condition)),
+          increment(
+              std::move(increment)),
+          body(
+              std::move(body))
     {
     }
 };

@@ -168,6 +168,26 @@ JSValue Interpreter::evaluate(
         );
     }
 
+    if (auto assignment =
+        dynamic_cast<
+            AssignmentExpression*>(
+                expression))
+    {
+        JSValue value =
+            evaluate(
+                assignment
+                    ->value.get()
+            );
+
+        environment.assign(
+            assignment
+                ->variableName,
+            value
+        );
+
+        return value;
+    }
+
     throw std::runtime_error(
         "Unsupported expression");
 }
@@ -211,7 +231,33 @@ void Interpreter::execute(
 
         if (isTruthy(condition))
         {
-            std::cout<< "IF EXECUTED"<< std::endl;
+            if (ifStatement->thenBranch)
+            {
+                for (auto& stmt :
+                    ifStatement
+                        ->thenBranch
+                        ->statements)
+                {
+                    execute(
+                        stmt.get()
+                    );
+                }
+            }
+        }
+        else
+        {
+            if (ifStatement->elseBranch)
+            {
+                for (auto& stmt :
+                    ifStatement
+                        ->elseBranch
+                        ->statements)
+                {
+                    execute(
+                        stmt.get()
+                    );
+                }
+            }
         }
 
         return;
@@ -235,6 +281,8 @@ void Interpreter::execute(
             WhileStatement*>(
                 statement))
     {
+        int counter = 0;
+
         while (
             isTruthy(
                 evaluate(
@@ -248,7 +296,83 @@ void Interpreter::execute(
                 << "WHILE ITERATION"
                 << std::endl;
 
-            break;
+            counter++;
+
+            if (counter >= 3)
+            {
+                break;
+            }
+
+            if (whileStatement->body)
+            {
+                for (auto& stmt :
+                    whileStatement
+                        ->body
+                        ->statements)
+                {
+                    execute(
+                        stmt.get()
+                    );
+                }
+            }
+        }
+
+        return;
+    }
+
+    if (auto forStatement =
+        dynamic_cast<
+            ForStatement*>(
+                statement))
+    {
+        if (forStatement->initializer)
+        {
+            execute(
+                forStatement
+                    ->initializer.get()
+            );
+        }
+
+        int safetyCounter = 0;
+
+        while (
+            !forStatement->condition
+            ||
+            isTruthy(
+                evaluate(
+                    forStatement
+                        ->condition.get()
+                )
+            )
+        )
+        {
+            if (forStatement->body)
+            {
+                for (auto& stmt :
+                    forStatement
+                        ->body
+                        ->statements)
+                {
+                    execute(
+                        stmt.get()
+                    );
+                }
+            }
+
+            if (forStatement->increment)
+            {
+                evaluate(
+                    forStatement
+                        ->increment.get()
+                );
+            }
+
+            safetyCounter++;
+
+            if (safetyCounter > 1000)
+            {
+                break;
+            }
         }
 
         return;

@@ -31,6 +31,13 @@ public:
         variables[name] = value;
     }
 
+    void assign(
+        const std::string& name,
+        const JSValue& value)
+    {
+        variables[name] = value;
+    }
+
     bool exists(
         const std::string& name)
     {
