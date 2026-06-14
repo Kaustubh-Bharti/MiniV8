@@ -66,4 +66,7 @@ public:
     std::unique_ptr<Expression> parseAssignment();
 
     std::unique_ptr<Expression> parseArrayLiteral();
+
+    std::unique_ptr<VariableDeclaration> parseForVariableDeclaration();
+
 };

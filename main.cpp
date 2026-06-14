@@ -1,160 +1,130 @@
 #include <iostream>
-#include <cmath>
-#include <string>
 #include <vector>
-#include <algorithm>
+#include <string>
+
+#include "lexer/Lexer.h"
+#include "parser/Parser.h"
+#include "runtime/Interpreter.h"
 
 int main()
 {
-    std::cout << "===== TEST 1 =====" << std::endl;
-
-    int num = 7;
-
-    if (num % 2 == 0)
+    std::vector<std::string> tests =
     {
-        std::cout << num << " is Even" << std::endl;
-    }
-    else
+R"(
+let num = 7;
+
+if (num % 2 === 0)
+{
+    console.log(num + " is Even");
+}
+else
+{
+    console.log(num + " is Odd");
+}
+)",
+
+R"(
+for (let i = 1; i <= 5; i++)
+{
+    let row = "";
+
+    for (let j = 1; j <= i; j++)
     {
-        std::cout << num << " is Odd" << std::endl;
-    }
-
-    std::cout << std::endl;
-
-    std::cout << "===== TEST 2 =====" << std::endl;
-
-    for (int i = 1; i <= 5; i++)
-    {
-        std::string row = "";
-
-        for (int j = 1; j <= i; j++)
-        {
-            row += "*";
-        }
-
-        std::cout << row << std::endl;
+        row += "*";
     }
 
-    std::cout << std::endl;
+    console.log(row);
+}
+)",
 
-    std::cout << "===== TEST 3 =====" << std::endl;
+R"(
+function isArmstrong(num)
+{
+    let temp = num;
+    let sum = 0;
 
-    auto isArmstrong =
-        [](int num)
-        {
-            int temp = num;
-            int sum = 0;
-
-            while (temp > 0)
-            {
-                int digit =
-                    temp % 10;
-
-                sum +=
-                    digit * digit * digit;
-
-                temp =
-                    static_cast<int>(
-                        std::floor(
-                            temp / 10.0
-                        )
-                    );
-            }
-
-            return sum == num;
-        };
-
-    std::cout
-        << isArmstrong(153)
-        << std::endl;
-
-    std::cout
-        << isArmstrong(123)
-        << std::endl;
-
-    std::cout << std::endl;
-
-    std::cout << "===== TEST 4 =====" << std::endl;
-
-    std::vector<int> arr =
+    while (temp > 0)
     {
-        1, 2, 3, 4, 5
+        let digit = temp % 10;
+        sum += digit ** 3;
+        temp = Math.floor(temp / 10);
+    }
+
+    return sum === num;
+}
+
+console.log(isArmstrong(153));
+console.log(isArmstrong(123));
+)",
+
+R"(
+let arr = [1,2,3,4,5];
+
+let reversed = arr.reverse();
+
+console.log(
+    reversed.join(",")
+);
+)",
+
+
+R"(
+let str = "racecar";
+
+let reversed =
+    str.split("")
+       .reverse()
+       .join("");
+
+if (str === reversed)
+{
+    console.log(
+        str +
+        " is a Palindrome"
+    );
+}
+else
+{
+    console.log(
+        str +
+        " is not a Palindrome"
+    );
+}
+)"
+
     };
 
-    std::vector<int> reversed =
-        arr;
-
-    std::reverse(
-        reversed.begin(),
-        reversed.end()
-    );
-
-    std::cout
-        << "Original: ";
-
-    for (size_t i = 0;
-         i < arr.size();
-         i++)
-    {
-        if (i)
-        {
-            std::cout << ", ";
-        }
-
-        std::cout
-            << arr[i];
-    }
-
-    std::cout
-        << std::endl;
-
-    std::cout
-        << "Reversed: ";
-
-    for (size_t i = 0;
-         i < reversed.size();
-         i++)
-    {
-        if (i)
-        {
-            std::cout << ", ";
-        }
-
-        std::cout
-            << reversed[i];
-    }
-
-    std::cout
-        << std::endl;
-
-    std::cout << std::endl;
-
-    std::cout << "===== TEST 5 =====" << std::endl;
-
-    std::string str =
-        "racecar";
-
-    std::string reversedStr =
-        str;
-
-    std::reverse(
-        reversedStr.begin(),
-        reversedStr.end()
-    );
-
-    if (str == reversedStr)
+    for (
+        size_t i = 0;
+        i < tests.size();
+        i++
+    )
     {
         std::cout
-            << str
-            << " is a Palindrome"
+            << "\n===== TEST "
+            << i + 1
+            << " =====\n"
             << std::endl;
-    }
-    else
-    {
-        std::cout
-            << str
-            << " is not a Palindrome"
-            << std::endl;
+
+        Lexer lexer(
+            tests[i]
+        );
+
+        auto tokens =
+            lexer.tokenize();
+
+        Parser parser(
+            tokens
+        );
+
+        auto program =
+            parser.parseProgram();
+
+        Interpreter interpreter;
+
+        interpreter.executeProgram(
+            program.get()
+        );
     }
 
     return 0;

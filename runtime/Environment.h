@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 #include <string>
-
+#include <stdexcept>
 #include "JSValue.h"
 
 #include <memory>
@@ -48,7 +48,17 @@ public:
     JSValue get(
         const std::string& name)
     {
-        return variables.at(name);
+        auto it =
+            variables.find(name);
+
+        if (it == variables.end())
+        {
+            throw std::runtime_error(
+                "Undefined variable: " + name
+            );
+        }
+
+        return it->second;
     }
 
     void defineFunction(
@@ -61,6 +71,16 @@ public:
     FunctionDeclaration* getFunction(
         const std::string& name)
     {
-        return functions.at(name);
+        auto it =
+            functions.find(name);
+
+        if (it == functions.end())
+        {
+            throw std::runtime_error(
+                "Undefined function: " + name
+            );
+        }
+
+        return it->second;
     }
 };

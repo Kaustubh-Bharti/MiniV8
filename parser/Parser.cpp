@@ -1,6 +1,7 @@
 #include "Parser.h"
 #include "../ast/AST.h"
 #include <memory>
+#include<iostream>
 
 Parser::Parser(const std::vector<Token>& tokens)
     : tokens(tokens),
@@ -142,7 +143,15 @@ std::unique_ptr<Expression> Parser::parsePrimary()
                 == TokenType::LeftParen
         )
         {
-            return parseCallExpression();
+            auto call =
+                parseCallExpression();
+
+            if (!call)
+            {
+                return nullptr;
+            }
+
+            return std::move(call);
         }
 
         match(TokenType::Identifier);
@@ -178,7 +187,6 @@ std::unique_ptr<Expression> Parser::parsePrimary()
     }
 
     return nullptr;
-
 }
 
 std::unique_ptr<Expression> Parser::parseExpression()
@@ -740,12 +748,16 @@ std::unique_ptr<CallExpression> Parser::parseCallExpression()
     }
 
     match(TokenType::RightParen);
-
+    std::cout
+    << "PARSED CALL: "
+    << call->callee
+    << std::endl;
     return call;
 }
 
 std::unique_ptr<ForStatement> Parser::parseForStatement()
 {
+    
     if (!match(TokenType::For))
     {
         return nullptr;
@@ -757,7 +769,7 @@ std::unique_ptr<ForStatement> Parser::parseForStatement()
     }
 
     auto initializer =
-        parseVariableDeclaration();
+        parseForVariableDeclaration();
 
     if (!initializer)
     {
@@ -798,13 +810,13 @@ std::unique_ptr<ForStatement> Parser::parseForStatement()
         return nullptr;
     }
 
-    return std::make_unique<
-        ForStatement>(
-            std::move(initializer),
-            std::move(condition),
-            std::move(increment),
-            std::move(body)
-        );
+
+    return std::make_unique<ForStatement>(
+        std::move(initializer),
+        std::move(condition),
+        std::move(increment),
+        std::move(body)
+    );
 }
 
 std::unique_ptr<Expression> Parser::parseAssignment()
@@ -913,6 +925,76 @@ std::unique_ptr<Expression> Parser::parseUnary()
             );
     }
 
-    return parsePrimary();
+    auto expression =
+        parsePrimary();
+
+    if (match(TokenType::PlusPlus))
+    {
+        return std::make_unique<
+            UnaryExpression>(
+                "++",
+                std::move(expression)
+            );
+    }
+
+    if (match(TokenType::MinusMinus))
+    {
+        return std::make_unique<
+            UnaryExpression>(
+                "--",
+                std::move(expression)
+            );
+    }
+
+    return expression;
+}
+
+std::unique_ptr<VariableDeclaration> Parser::parseForVariableDeclaration()
+{
+    bool isConst = false;
+
+    if (match(TokenType::Const))
+    {
+        isConst = true;
+    }
+    else if (match(TokenType::Let))
+    {
+        isConst = false;
+    }
+    else
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::Identifier))
+    {
+        return nullptr;
+    }
+
+    std::string name =
+        previous().value;
+
+    if (!match(TokenType::Assign))
+    {
+        return nullptr;
+    }
+
+    auto initializer =
+        parseExpression();
+    
+    if (!initializer)
+    {
+        return nullptr;
+    }
+    if (!match(TokenType::Semicolon))
+    {
+        return nullptr;
+    }
+    return std::make_unique<
+        VariableDeclaration>(
+            isConst,
+            name,
+            std::move(initializer)
+        );
 }
 

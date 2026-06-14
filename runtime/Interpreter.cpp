@@ -299,6 +299,12 @@ JSValue Interpreter::evaluate(
             CallExpression*>(
                 expression))
     {
+        std::cout
+    << "CALL: "
+    << call->callee
+    << std::endl;
+
+    
     if (
         call->callee.size() > 6
         &&
@@ -435,10 +441,34 @@ JSValue Interpreter::evaluate(
                             array[i].value))
                 {
                     result +=
-                        std::to_string(
+                        numberToString(
                             std::get<double>(
                                 array[i].value
                             )
+                        );
+                }
+                else if (
+                    std::holds_alternative<
+                        std::string>(
+                            array[i].value))
+                {
+                    result +=
+                        std::get<std::string>(
+                            array[i].value
+                        );
+                }
+                else if (
+                    std::holds_alternative<
+                        bool>(
+                            array[i].value))
+                {
+                    result +=
+                        (
+                            std::get<bool>(
+                                array[i].value
+                            )
+                            ? "true"
+                            : "false"
                         );
                 }
             }
@@ -760,8 +790,13 @@ JSValue Interpreter::callFunction(
                     value.value))
             {
                 std::cout
-                    << std::get<bool>(
-                        value.value)
+                    << (
+                        std::get<bool>(
+                            value.value
+                        )
+                        ? "true"
+                        : "false"
+                    )
                     << std::endl;
             }
             else if (
@@ -772,6 +807,48 @@ JSValue Interpreter::callFunction(
                 std::cout
                     << std::get<std::string>(
                         value.value)
+                    << std::endl;
+            }
+            else if (
+                std::holds_alternative<
+                    std::vector<JSValue>>(
+                        value.value))
+            {
+                auto array =
+                    std::get<
+                        std::vector<JSValue>>(
+                            value.value
+                        );
+
+                std::cout
+                    << "[";
+
+                for (
+                    size_t i = 0;
+                    i < array.size();
+                    i++
+                )
+                {
+                    if (i > 0)
+                    {
+                        std::cout
+                            << ",";
+                    }
+
+                    if (
+                        std::holds_alternative<
+                            std::string>(
+                                array[i].value))
+                    {
+                        std::cout
+                            << std::get<std::string>(
+                                array[i].value
+                            );
+                    }
+                }
+
+                std::cout
+                    << "]"
                     << std::endl;
             }
         }

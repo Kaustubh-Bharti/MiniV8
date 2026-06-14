@@ -219,32 +219,63 @@ racecar is a Palindrome
 
 ---
 
-## Adding More Hardcoded Test Cases
+## Adding More Test Cases
 
-Since the current implementation executes test cases directly from `main.cpp`, new test cases can be added by editing the `main()` function.
+The current version of the project demonstrates functionality using hardcoded test cases inside `main.cpp`.
+
+To add a new test case:
+
+### Step 1: Write the JavaScript Test Case
 
 Example:
 
+```javascript
+let a = 10;
+let b = 20;
+
+console.log(a + b);
+```
+
+### Step 2: Add an Equivalent Hardcoded Test in main.cpp
+
 ```cpp
-std::cout << "===== TEST 6 =====" << std::endl;
+std::cout
+    << "===== TEST 6 ====="
+    << std::endl;
 
 int a = 10;
 int b = 20;
 
 std::cout
-    << "Sum = "
     << a + b
     << std::endl;
 ```
 
-Output:
+### Step 3: Rebuild the Project
+
+```bash
+cmake --build build
+```
+
+### Step 4: Run the Executable
+
+```bash
+.\build\Debug\MiniV8.exe
+```
+
+### Example Output
 
 ```text
 ===== TEST 6 =====
-Sum = 30
+30
 ```
 
----
+### Note
+
+The original intent of MiniV8 is to execute JavaScript-like code through the Lexer, Parser, AST, and Interpreter pipeline. However, for demonstration and testing purposes, the current version uses hardcoded equivalents of the JavaScript test cases inside `main.cpp`.
+
+Additional JavaScript test cases can be added by writing the desired JavaScript program and implementing its equivalent logic inside `main.cpp`.
+
 
 ## Project Structure
 
