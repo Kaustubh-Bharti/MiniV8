@@ -1,38 +1,46 @@
 #include <iostream>
 
-#include "runtime/Interpreter.h"
-#include "ast/AST.h"
+#include "lexer/Lexer.h"
+#include "parser/Parser.h"
 
 int main()
 {
-    Interpreter interpreter;
+    std::string source =
+R"(
 
-    auto expression =
-        std::make_unique<
-            BinaryExpression>(
-                std::make_unique<
-                    StringLiteral>(
-                        "Value = "
-                    ),
+if (5 > 10)
+{
+}
+else if (5 > 2)
+{
+}
+else
+{
+}
 
-                "+",
+)";
 
-                std::make_unique<
-                    NumberLiteral>(
-                        42
-                    )
-            );
+    Lexer lexer(source);
 
-    auto result =
-        interpreter.evaluate(
-            expression.get()
-        );
+    auto tokens =
+        lexer.tokenize();
 
-    std::cout
-        << std::get<std::string>(
-            result.value
-        )
-        << std::endl;
+    Parser parser(tokens);
+
+    auto statement =
+        parser.parseStatement();
+
+    if (
+        dynamic_cast<
+            IfStatement*>(
+                statement.get()
+            )
+    )
+    {
+        std::cout
+            << "ELSE IF PARSED"
+            << std::endl;
+    }
 
     return 0;
 }

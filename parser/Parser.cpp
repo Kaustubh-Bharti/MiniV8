@@ -339,12 +339,34 @@ std::unique_ptr<IfStatement> Parser::parseIfStatement()
 
     if (match(TokenType::Else))
     {
-        elseBranch =
-            parseBlockStatement();
-
-        if (!elseBranch)
+        if (check(TokenType::If))
         {
-            return nullptr;
+            auto nestedIf =
+                parseIfStatement();
+
+            if (!nestedIf)
+            {
+                return nullptr;
+            }
+
+            elseBranch =
+                std::make_unique<
+                    BlockStatement>();
+
+            elseBranch
+                ->statements.push_back(
+                    std::move(nestedIf)
+                );
+        }
+        else
+        {
+            elseBranch =
+                parseBlockStatement();
+
+            if (!elseBranch)
+            {
+                return nullptr;
+            }
         }
     }
 
@@ -642,8 +664,7 @@ std::unique_ptr<CallExpression> Parser::parseCallExpression()
     return call;
 }
 
-std::unique_ptr<ForStatement>
-Parser::parseForStatement()
+std::unique_ptr<ForStatement> Parser::parseForStatement()
 {
     if (!match(TokenType::For))
     {
