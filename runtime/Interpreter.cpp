@@ -230,6 +230,19 @@ void Interpreter::execute(
 
         return;
     }
+
+    if (auto function =
+        dynamic_cast<
+            FunctionDeclaration*>(
+                statement))
+    {
+        environment.defineFunction(
+            function->name,
+            function
+        );
+
+        return;
+    }
 }
 
 void Interpreter::executeProgram(

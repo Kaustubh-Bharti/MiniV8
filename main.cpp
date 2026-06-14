@@ -7,27 +7,29 @@ int main()
 {
     Interpreter interpreter;
 
-    auto condition =
+    auto function =
         std::make_unique<
-            BinaryExpression>(
-                std::make_unique<
-                    NumberLiteral>(5),
-
-                ">",
-
-                std::make_unique<
-                    NumberLiteral>(2)
-            );
-
-    auto whileStatement =
-        std::make_unique<
-            WhileStatement>(
-                std::move(condition)
+            FunctionDeclaration>(
+                "greet"
             );
 
     interpreter.execute(
-        whileStatement.get()
+        function.get()
     );
+
+    auto stored =
+        interpreter
+            .getEnvironment()
+            .getFunction(
+                "greet"
+            );
+
+    if (stored)
+    {
+        std::cout
+            << stored->name
+            << std::endl;
+    }
 
     return 0;
 }

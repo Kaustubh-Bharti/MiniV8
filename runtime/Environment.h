@@ -5,6 +5,10 @@
 
 #include "JSValue.h"
 
+#include <memory>
+
+class FunctionDeclaration;
+
 class Environment
 {
 private:
@@ -12,6 +16,11 @@ private:
         std::string,
         JSValue
     > variables;
+
+    std::unordered_map<
+        std::string,
+        FunctionDeclaration*
+    > functions;
 
 public:
 
@@ -33,5 +42,18 @@ public:
         const std::string& name)
     {
         return variables.at(name);
+    }
+
+    void defineFunction(
+        const std::string& name,
+        FunctionDeclaration* function)
+    {
+        functions[name] = function;
+    }
+
+    FunctionDeclaration* getFunction(
+        const std::string& name)
+    {
+        return functions.at(name);
     }
 };
