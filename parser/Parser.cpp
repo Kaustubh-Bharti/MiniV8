@@ -110,12 +110,37 @@ std::unique_ptr<Expression> Parser::parsePrimary()
 
 std::unique_ptr<Expression> Parser::parseExpression()
 {
-    return parseEquality();
+    return parseLogical();
 }
 
 std::unique_ptr<Expression> Parser::parseEquality()
 {
-    return parseComparison();
+    auto expression =
+        parseComparison();
+
+    while (
+        match(TokenType::Equal) ||
+        match(TokenType::StrictEqual) ||
+        match(TokenType::NotEqual) ||
+        match(TokenType::StrictNotEqual)
+    )
+    {
+        std::string op =
+            previous().value;
+
+        auto right =
+            parseComparison();
+
+        expression =
+            std::make_unique<
+                BinaryExpression>(
+                    std::move(expression),
+                    op,
+                    std::move(right)
+                );
+    }
+
+    return expression;
 }
 
 std::unique_ptr<Expression> Parser::parseComparison()
@@ -259,3 +284,116 @@ std::unique_ptr<VariableDeclaration> Parser::parseVariableDeclaration()
             std::move(initializer)
         );
 }
+
+std::unique_ptr<IfStatement> Parser::parseIfStatement()
+{
+    if (!match(TokenType::If))
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::LeftParen))
+    {
+        return nullptr;
+    }
+
+    auto condition =
+        parseExpression();
+
+    if (!condition)
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::RightParen))
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::LeftBrace))
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::RightBrace))
+    {
+        return nullptr;
+    }
+
+    return std::make_unique<
+        IfStatement>(
+            std::move(condition)
+        );
+}
+
+std::unique_ptr<WhileStatement> Parser::parseWhileStatement()
+{
+    if (!match(TokenType::While))
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::LeftParen))
+    {
+        return nullptr;
+    }
+
+    auto condition =
+        parseExpression();
+
+    if (!condition)
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::RightParen))
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::LeftBrace))
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::RightBrace))
+    {
+        return nullptr;
+    }
+
+    return std::make_unique<
+        WhileStatement>(
+            std::move(condition)
+        );
+}
+
+std::unique_ptr<Expression> Parser::parseLogical()
+{
+    auto expression =
+        parseEquality();
+
+    while (
+        match(TokenType::LogicalAnd) ||
+        match(TokenType::LogicalOr)
+    )
+    {
+        std::string op =
+            previous().value;
+
+        auto right =
+            parseEquality();
+
+        expression =
+            std::make_unique<
+                BinaryExpression>(
+                    std::move(expression),
+                    op,
+                    std::move(right)
+                );
+    }
+
+    return expression;
+}
+
+
+

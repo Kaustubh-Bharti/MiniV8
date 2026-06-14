@@ -77,3 +77,46 @@ void printAST(
         return;
     }
 }
+
+void printAST(
+    const IfStatement* statement,
+    int indent)
+{
+    if (!statement)
+    {
+        return;
+    }
+
+    printIndent(indent);
+
+    std::cout
+        << "IfStatement"
+        << std::endl;
+
+    printAST(
+        statement->condition.get(),
+        indent + 1
+    );
+}
+
+void printAST(
+    const WhileStatement* statement,
+    int indent)
+{
+    if (!statement)
+    {
+        return;
+    }
+
+    printIndent(indent);
+
+    std::cout
+        << "WhileStatement"
+        << std::endl;
+
+    printAST(
+        statement->condition.get(),
+        indent + 1
+    );
+}
+

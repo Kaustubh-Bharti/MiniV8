@@ -31,6 +31,8 @@ public:
 
     std::unique_ptr<Expression> parseExpression();
 
+    std::unique_ptr<Expression> parseLogical();
+
     std::unique_ptr<Expression> parseEquality();
 
     std::unique_ptr<Expression> parseComparison();
@@ -42,4 +44,8 @@ public:
     std::unique_ptr<Expression> parseUnary();
 
     std::unique_ptr<VariableDeclaration> parseVariableDeclaration();
+
+    std::unique_ptr<IfStatement> parseIfStatement();
+
+    std::unique_ptr<WhileStatement> parseWhileStatement();
 };

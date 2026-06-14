@@ -57,6 +57,12 @@ std::vector<Token> Lexer::tokenize()
             else if (identifier == "else")
                 tokens.emplace_back(TokenType::Else, identifier);
 
+            else if (identifier == "for")
+                tokens.emplace_back(TokenType::For, identifier);
+
+            else if (identifier == "while")
+                tokens.emplace_back(TokenType::While, identifier);
+
             else if (identifier == "return")
                 tokens.emplace_back(TokenType::Return, identifier);
 
@@ -371,6 +377,30 @@ void Lexer::addToken(std::vector<Token>& tokens,TokenType type)
 
     case TokenType::GreaterEqual:
         value = ">=";
+        break;
+
+    case TokenType::Equal:
+        value = "==";
+        break;
+
+    case TokenType::StrictEqual:
+        value = "===";
+        break;
+
+    case TokenType::NotEqual:
+        value = "!=";
+        break;
+
+    case TokenType::StrictNotEqual:
+        value = "!==";
+        break;
+
+    case TokenType::LogicalAnd:
+        value = "&&";
+        break;
+
+    case TokenType::LogicalOr:
+        value = "||";
         break;
 
     default:

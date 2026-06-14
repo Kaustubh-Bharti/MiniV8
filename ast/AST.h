@@ -135,3 +135,30 @@ public:
     {
     }
 };
+
+class IfStatement : public Statement
+{
+public:
+    std::unique_ptr<Expression> condition;
+
+    explicit IfStatement(
+        std::unique_ptr<Expression> condition)
+        : condition(
+            std::move(condition))
+    {
+    }
+};
+
+class WhileStatement : public Statement
+{
+public:
+    std::unique_ptr<Expression> condition;
+
+    explicit WhileStatement(
+        std::unique_ptr<Expression> condition)
+        : condition(
+            std::move(condition))
+    {
+    }
+};
+
