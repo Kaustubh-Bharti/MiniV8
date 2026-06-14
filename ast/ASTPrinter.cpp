@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-void printIndent(int indent)
+static void printIndent(int indent)
 {
     for(int i = 0; i < indent; i++)
     {
@@ -25,13 +25,25 @@ void printAST(
                 expression))
     {
         printIndent(indent);
-
         std::cout
             << "NumberLiteral("
             << number->value
             << ")"
             << std::endl;
+        return;
+    }
 
+    if (auto str =
+        dynamic_cast<
+            const StringLiteral*>(
+                expression))
+    {
+        printIndent(indent);
+        std::cout
+            << "StringLiteral(\""
+            << str->value
+            << "\")"
+            << std::endl;
         return;
     }
 
@@ -41,13 +53,11 @@ void printAST(
                 expression))
     {
         printIndent(indent);
-
         std::cout
             << "Identifier("
             << identifier->name
             << ")"
             << std::endl;
-
         return;
     }
 
@@ -57,7 +67,6 @@ void printAST(
                 expression))
     {
         printIndent(indent);
-
         std::cout
             << "BinaryExpression("
             << binary->op
@@ -66,20 +75,57 @@ void printAST(
 
         printAST(
             binary->left.get(),
-            indent + 1
-        );
+            indent + 1);
 
         printAST(
             binary->right.get(),
-            indent + 1
-        );
+            indent + 1);
 
         return;
     }
+
+    if (auto call =
+        dynamic_cast<
+            const CallExpression*>(
+                expression))
+    {
+        printIndent(indent);
+        std::cout
+            << "CallExpression"
+            << std::endl;
+
+        printAST(
+            call->callee.get(),
+            indent + 1);
+
+        return;
+    }
+
+    if (auto member =
+        dynamic_cast<
+            const MemberExpression*>(
+                expression))
+    {
+        printIndent(indent);
+        std::cout
+            << "MemberExpression(."
+            << member->property
+            << ")"
+            << std::endl;
+
+        printAST(
+            member->object.get(),
+            indent + 1);
+
+        return;
+    }
+
+    printIndent(indent);
+    std::cout << "Expression" << std::endl;
 }
 
 void printAST(
-    const IfStatement* statement,
+    const Statement* statement,
     int indent)
 {
     if (!statement)
@@ -87,75 +133,59 @@ void printAST(
         return;
     }
 
-    printIndent(indent);
-
-    std::cout
-        << "IfStatement"
-        << std::endl;
-
-    printAST(
-        statement->condition.get(),
-        indent + 1
-    );
-}
-
-void printAST(
-    const WhileStatement* statement,
-    int indent)
-{
-    if (!statement)
+    if (auto ifStmt =
+        dynamic_cast<
+            const IfStatement*>(statement))
     {
+        printIndent(indent);
+        std::cout << "IfStatement"
+            << std::endl;
+        printAST(
+            ifStmt->condition.get(),
+            indent + 1);
+        return;
+    }
+
+    if (auto whileStmt =
+        dynamic_cast<
+            const WhileStatement*>(statement))
+    {
+        printIndent(indent);
+        std::cout << "WhileStatement"
+            << std::endl;
+        printAST(
+            whileStmt->condition.get(),
+            indent + 1);
+        return;
+    }
+
+    if (auto funcDecl =
+        dynamic_cast<
+            const FunctionDeclaration*>(
+                statement))
+    {
+        printIndent(indent);
+        std::cout
+            << "FunctionDeclaration("
+            << funcDecl->name
+            << ")"
+            << std::endl;
+        return;
+    }
+
+    if (auto retStmt =
+        dynamic_cast<
+            const ReturnStatement*>(statement))
+    {
+        printIndent(indent);
+        std::cout << "ReturnStatement"
+            << std::endl;
+        printAST(
+            retStmt->value.get(),
+            indent + 1);
         return;
     }
 
     printIndent(indent);
-
-    std::cout
-        << "WhileStatement"
-        << std::endl;
-
-    printAST(
-        statement->condition.get(),
-        indent + 1
-    );
+    std::cout << "Statement" << std::endl;
 }
-
-void printAST(
-    const FunctionDeclaration* statement,
-    int indent)
-{
-    if (!statement)
-    {
-        return;
-    }
-
-    printIndent(indent);
-
-    std::cout
-        << "FunctionDeclaration("
-        << statement->name
-        << ")"
-        << std::endl;
-}
-
-void printAST(
-    const ReturnStatement* statement,
-    int indent)
-{
-    if (!statement)
-    {
-        return;
-    }
-
-    printIndent(indent);
-
-    std::cout
-        << "ReturnStatement"
-        << std::endl;
-
-    printAST(
-        statement->value.get(),
-        indent + 1
-    );
-}
-

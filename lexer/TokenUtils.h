@@ -25,8 +25,13 @@ inline std::string tokenTypeToString(TokenType type)
         case TokenType::Null: return "Null";
         case TokenType::Undefined: return "Undefined";
 
+        case TokenType::Typeof: return "Typeof";
+
         case TokenType::Assign: return "Assign";
         case TokenType::StrictEqual: return "StrictEqual";
+        case TokenType::Equal: return "Equal";
+        case TokenType::NotEqual: return "NotEqual";
+        case TokenType::StrictNotEqual: return "StrictNotEqual";
 
         case TokenType::Plus: return "Plus";
         case TokenType::Minus: return "Minus";
@@ -35,6 +40,7 @@ inline std::string tokenTypeToString(TokenType type)
         case TokenType::Slash: return "Slash";
 
         case TokenType::Percent: return "Percent";
+        case TokenType::Power: return "Power";
 
         case TokenType::Semicolon: return "Semicolon";
 
@@ -75,6 +81,35 @@ inline std::string tokenTypeToString(TokenType type)
         case TokenType::Do: return "Do";
 
         case TokenType::New: return "New";
+
+        case TokenType::QuestionMark: return "QuestionMark";
+
+        case TokenType::LogicalAnd: return "LogicalAnd";
+        case TokenType::LogicalOr: return "LogicalOr";
+        case TokenType::LogicalNot: return "LogicalNot";
+
+        case TokenType::PlusPlus: return "PlusPlus";
+        case TokenType::MinusMinus: return "MinusMinus";
+
+        case TokenType::PlusEqual: return "PlusEqual";
+        case TokenType::MinusEqual: return "MinusEqual";
+        case TokenType::StarEqual: return "StarEqual";
+        case TokenType::SlashEqual: return "SlashEqual";
+        case TokenType::PercentEqual: return "PercentEqual";
+
+        case TokenType::Less: return "Less";
+        case TokenType::LessEqual: return "LessEqual";
+        case TokenType::Greater: return "Greater";
+        case TokenType::GreaterEqual: return "GreaterEqual";
+
+        case TokenType::Increment: return "Increment";
+        case TokenType::Decrement: return "Decrement";
+
+        case TokenType::PlusAssign: return "PlusAssign";
+        case TokenType::MinusAssign: return "MinusAssign";
+
+        case TokenType::For: return "For";
+        case TokenType::While: return "While";
 
         default:
             return "Other";

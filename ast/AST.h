@@ -29,6 +29,8 @@ class Expression : public Node
 {
 };
 
+// ===== Literals =====
+
 class NumberLiteral : public Expression
 {
 public:
@@ -81,6 +83,26 @@ class UndefinedLiteral : public Expression
 {
 };
 
+class ArrayLiteral : public Expression
+{
+public:
+    std::vector<
+        std::unique_ptr<Expression>
+    > elements;
+};
+
+class ObjectLiteral : public Expression
+{
+public:
+    // Parallel vectors for keys and values
+    std::vector<std::string> keys;
+    std::vector<
+        std::unique_ptr<Expression>
+    > values;
+};
+
+// ===== Operators =====
+
 class BinaryExpression : public Expression
 {
 public:
@@ -104,12 +126,33 @@ class UnaryExpression : public Expression
 public:
     std::string op;
     std::unique_ptr<Expression> operand;
+    bool isPrefix;
 
     UnaryExpression(
         const std::string& op,
-        std::unique_ptr<Expression> operand)
+        std::unique_ptr<Expression> operand,
+        bool isPrefix = true)
         : op(op),
-          operand(std::move(operand))
+          operand(std::move(operand)),
+          isPrefix(isPrefix)
+    {
+    }
+};
+
+class TernaryExpression : public Expression
+{
+public:
+    std::unique_ptr<Expression> condition;
+    std::unique_ptr<Expression> consequent;
+    std::unique_ptr<Expression> alternate;
+
+    TernaryExpression(
+        std::unique_ptr<Expression> condition,
+        std::unique_ptr<Expression> consequent,
+        std::unique_ptr<Expression> alternate)
+        : condition(std::move(condition)),
+          consequent(std::move(consequent)),
+          alternate(std::move(alternate))
     {
     }
 };
@@ -128,6 +171,98 @@ public:
     {
     }
 };
+
+// ===== Member / Index Access =====
+
+class MemberExpression : public Expression
+{
+public:
+    std::unique_ptr<Expression> object;
+    std::string property;
+
+    MemberExpression(
+        std::unique_ptr<Expression> object,
+        const std::string& property)
+        : object(std::move(object)),
+          property(property)
+    {
+    }
+};
+
+class IndexExpression : public Expression
+{
+public:
+    std::unique_ptr<Expression> object;
+    std::unique_ptr<Expression> index;
+
+    IndexExpression(
+        std::unique_ptr<Expression> object,
+        std::unique_ptr<Expression> index)
+        : object(std::move(object)),
+          index(std::move(index))
+    {
+    }
+};
+
+// ===== Member Assignment (obj.prop = val) =====
+
+class MemberAssignmentExpression : public Expression
+{
+public:
+    std::unique_ptr<Expression> object;
+    std::string property;
+    std::unique_ptr<Expression> value;
+
+    MemberAssignmentExpression(
+        std::unique_ptr<Expression> object,
+        const std::string& property,
+        std::unique_ptr<Expression> value)
+        : object(std::move(object)),
+          property(property),
+          value(std::move(value))
+    {
+    }
+};
+
+// ===== Call Expression =====
+// Callee is now an Expression (Identifier or MemberExpression)
+
+class CallExpression : public Expression
+{
+public:
+    std::unique_ptr<Expression> callee;
+
+    std::vector<
+        std::unique_ptr<Expression>
+    > arguments;
+
+    explicit CallExpression(
+        std::unique_ptr<Expression> callee)
+        : callee(std::move(callee))
+    {
+    }
+};
+
+// ===== Functions =====
+
+class FunctionExpression : public Expression
+{
+public:
+    std::string name; // empty for anonymous
+    std::vector<std::string> parameters;
+    std::unique_ptr<BlockStatement> body;
+};
+
+class ArrowFunctionExpression : public Expression
+{
+public:
+    std::vector<std::string> parameters;
+    // Either body or expressionBody is set
+    std::unique_ptr<BlockStatement> body;
+    std::unique_ptr<Expression> expressionBody;
+};
+
+// ===== Statements =====
 
 class VariableDeclaration : public Statement
 {
@@ -192,6 +327,21 @@ public:
     }
 };
 
+class DoWhileStatement : public Statement
+{
+public:
+    std::unique_ptr<Expression> condition;
+    std::unique_ptr<BlockStatement> body;
+
+    DoWhileStatement(
+        std::unique_ptr<Expression> condition,
+        std::unique_ptr<BlockStatement> body)
+        : condition(std::move(condition)),
+          body(std::move(body))
+    {
+    }
+};
+
 class ForStatement : public Statement
 {
 public:
@@ -226,6 +376,14 @@ public:
               std::move(body))
     {
     }
+};
+
+class BreakStatement : public Statement
+{
+};
+
+class ContinueStatement : public Statement
+{
 };
 
 class FunctionDeclaration : public Statement
@@ -279,28 +437,3 @@ public:
     {
     }
 };
-
-class CallExpression : public Expression
-{
-public:
-    std::string callee;
-
-    std::vector<
-        std::unique_ptr<Expression>
-    > arguments;
-
-    explicit CallExpression(
-        const std::string& callee)
-        : callee(callee)
-    {
-    }
-};
-
-class ArrayLiteral : public Expression
-{
-public:
-    std::vector<
-        std::unique_ptr<Expression>
-    > elements;
-};
-

@@ -38,6 +38,8 @@ enum class TokenType
     Null,
     Undefined,
 
+    Typeof,
+
     Plus,
     Minus,
     Star,
@@ -86,6 +88,8 @@ enum class TokenType
     Colon,
     Spread,
 
+    QuestionMark,
+
     PlusEqual,
     MinusEqual,
     StarEqual,
@@ -128,7 +132,7 @@ private:
     std::string readNumber();
     bool isDigit(char c) const;
 
-    std::string readString();
+    std::string readString(char quote);
 
 public:
     Lexer(const std::string& source);

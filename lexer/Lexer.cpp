@@ -13,9 +13,9 @@ std::vector<Token> Lexer::tokenize()
     {
         char c = advance();
 
-        if (c == '"')
+        if (c == '"' || c == '\'')
         {
-            std::string value = readString();
+            std::string value = readString(c);
 
             tokens.emplace_back(
                 TokenType::String,
@@ -99,6 +99,9 @@ std::vector<Token> Lexer::tokenize()
             else if (identifier == "new")
                 tokens.emplace_back(TokenType::New, identifier);
 
+            else if (identifier == "typeof")
+                tokens.emplace_back(TokenType::Typeof, identifier);
+
             else
                 tokens.emplace_back(TokenType::Identifier, identifier);
 
@@ -149,6 +152,10 @@ std::vector<Token> Lexer::tokenize()
             
         case ',':
             addToken(tokens, TokenType::Comma);
+            break;
+
+        case '?':
+            tokens.emplace_back(TokenType::QuestionMark, "?");
             break;
 
         case '.':
@@ -461,6 +468,14 @@ void Lexer::addToken(std::vector<Token>& tokens,TokenType type)
         value = "||";
         break;
 
+    case TokenType::LogicalNot:
+        value = "!";
+        break;
+
+    case TokenType::Arrow:
+        value = "=>";
+        break;
+
     default:
         value = "";
         break;
@@ -473,7 +488,7 @@ bool Lexer::isAlpha(char c) const
 {
     return (c >= 'a' && c <= 'z') ||
            (c >= 'A' && c <= 'Z') ||
-           c == '_';
+           c == '_' || c == '$';
 }
 
 bool Lexer::isAlphaNumeric(char c) const
@@ -523,18 +538,39 @@ std::string Lexer::readNumber()
     return result;
 }
 
-std::string Lexer::readString()
+std::string Lexer::readString(char quote)
 {
     std::string result;
 
-    while (!isAtEnd() && peek() != '"')
+    while (!isAtEnd() && peek() != quote)
     {
-        result += advance();
+        if (peek() == '\\')
+        {
+            advance(); // skip backslash
+            if (!isAtEnd())
+            {
+                char escaped = advance();
+                switch (escaped)
+                {
+                case 'n': result += '\n'; break;
+                case 't': result += '\t'; break;
+                case 'r': result += '\r'; break;
+                case '\\': result += '\\'; break;
+                case '\'': result += '\''; break;
+                case '"': result += '"'; break;
+                default: result += escaped; break;
+                }
+            }
+        }
+        else
+        {
+            result += advance();
+        }
     }
 
     if (!isAtEnd())
     {
-        advance();
+        advance(); // consume closing quote
     }
 
     return result;

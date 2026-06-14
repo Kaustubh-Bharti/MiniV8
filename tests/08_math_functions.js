@@ -1,0 +1,11 @@
+console.log("floor(4.7):", Math.floor(4.7));
+console.log("ceil(4.2):", Math.ceil(4.2));
+console.log("round(4.5):", Math.round(4.5));
+console.log("round(4.4):", Math.round(4.4));
+console.log("abs(-7):", Math.abs(-7));
+console.log("sqrt(144):", Math.sqrt(144));
+console.log("pow(2,8):", Math.pow(2, 8));
+console.log("min(3,7,1):", Math.min(3, 7, 1));
+console.log("max(3,7,1):", Math.max(3, 7, 1));
+console.log("PI:", Math.PI);
+console.log("E:", Math.E);

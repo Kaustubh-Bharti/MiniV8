@@ -7,61 +7,46 @@ MiniV8 is a lightweight JavaScript-inspired interpreter written in C++. The proj
 ### Supported Language Constructs
 
 * Variables (`let`, `const`)
-* Arithmetic Operators
-
-  * `+`
-  * `-`
-  * `*`
-  * `/`
-  * `%`
-  * `**`
-* Comparison Operators
-
-  * `==`
-  * `===`
-  * `!=`
-  * `!==`
-  * `<`
-  * `<=`
-  * `>`
-  * `>=`
-* Compound Assignment Operators
-
-  * `+=`
-  * `-=`
-  * `*=`
-  * `/=`
-  * `%=`
-* Unary Operators
-
-  * `++`
-  * `--`
-* Conditional Statements
-
-  * `if`
-  * `else`
-  * `else if`
-* Loops
-
-  * `while`
-  * `for`
+* Data Types: Numbers, Strings (double and single quotes), Booleans, `null`, `undefined`, Arrays, Objects
+* Arithmetic Operators: `+`, `-`, `*`, `/`, `%`, `**`
+* Comparison Operators: `==`, `===`, `!=`, `!==`, `<`, `<=`, `>`, `>=`
+* Logical Operators: `&&`, `||`, `!`
+* Compound Assignment: `+=`, `-=`, `*=`, `/=`, `%=`
+* Unary Operators: `++`, `--`, `-` (negation), `typeof`
+* Ternary Operator: `? :`
+* Conditional Statements: `if`, `else`, `else if`
+* Loops: `for`, `while`, `do...while`, `break`, `continue`
 * Functions
-
   * Function Declaration
-  * Parameters
-  * Return Statements
+  * Function Expressions
+  * Arrow Functions (`x => expr`, `(x, y) => expr`, `(x) => { ... }`)
+  * Callbacks / Higher-Order Functions
 * Built-in Functions
-
-  * `console.log()`
-  * `Math.floor()`
-  * `Math.abs()`
-  * `Math.pow()`
+  * `console.log()` (supports multiple arguments)
+  * `Math.floor()`, `Math.ceil()`, `Math.round()`
+  * `Math.abs()`, `Math.sqrt()`, `Math.pow()`
+  * `Math.min()`, `Math.max()`, `Math.random()`
+  * `Math.PI`, `Math.E`
+  * `Date.now()`
+  * `Object.keys()`, `Object.values()`
 * Arrays
-
   * Array Literals
-  * `join()`
-  * `reverse()`
-  * `split()`
+  * `length`, `push()`, `pop()`, `shift()`, `unshift()`
+  * `indexOf()`, `includes()`, `find()`
+  * `join()`, `reverse()`, `slice()`, `concat()`
+  * `map()`, `filter()`, `reduce()`, `forEach()`
+  * Method chaining: `arr.filter(x => x > 2).map(x => x * 10)`
+* Strings
+  * `length`, `split()`, `charAt()`
+  * `toUpperCase()`, `toLowerCase()`
+  * `indexOf()`, `includes()`
+  * `trim()`, `substring()`, `slice()`
+* Objects
+  * Object Literals: `{ key: value }`
+  * Property access: `obj.key`
+  * Property assignment: `obj.key = value`
+  * `Object.keys()`, `Object.values()`
+* Comments: `//` single-line, `/* */` multi-line
 
 ---
 
@@ -69,9 +54,9 @@ MiniV8 is a lightweight JavaScript-inspired interpreter written in C++. The proj
 
 ### Requirements
 
-* CMake 3.20+
-* Visual Studio 2022 (MSVC)
-* C++17 Compiler
+* CMake 3.15+
+* Visual Studio 2022 (MSVC) or any C++17 compiler
+* C++17 Standard
 
 ### Build Steps
 
@@ -99,183 +84,72 @@ build/Debug/MiniV8.exe
 
 ## Running the Project
 
-Execute:
+### Run a single JavaScript file
+
+```bash
+.\build\Debug\MiniV8.exe path/to/file.js
+```
+
+### Run all test files in a directory
+
+```bash
+.\build\Debug\MiniV8.exe --test-dir tests
+```
+
+### Show usage help
 
 ```bash
 .\build\Debug\MiniV8.exe
 ```
 
-The current version contains hardcoded test cases inside `main.cpp`.
-
-The output will display the results of all implemented test cases.
-
 ---
 
-## Implemented Test Cases
+## Test Suite
 
-### Test Case 1 – Odd or Even Checker
+The project includes 13 test files in the `tests/` directory:
 
-Input:
-
-```javascript
-let num = 7;
-
-if (num % 2 === 0)
-{
-    console.log(num + " is Even");
-}
-else
-{
-    console.log(num + " is Odd");
-}
-```
-
-Expected Output:
-
-```text
-7 is Odd
-```
-
----
-
-### Test Case 2 – Triangle Pattern
-
-Input:
-
-```javascript
-for (let i = 1; i <= 5; i++)
-{
-    let row = "";
-
-    for (let j = 1; j <= i; j++)
-    {
-        row += "*";
-    }
-
-    console.log(row);
-}
-```
-
-Expected Output:
-
-```text
-*
-**
-***
-****
-*****
-```
-
----
-
-### Test Case 3 – Armstrong Number
-
-Input:
-
-```javascript
-isArmstrong(153)
-isArmstrong(123)
-```
-
-Expected Output:
-
-```text
-1
-0
-```
-
----
-
-### Test Case 4 – Array Reverse
-
-Input:
-
-```javascript
-let arr = [1,2,3,4,5];
-```
-
-Expected Output:
-
-```text
-Original: 1, 2, 3, 4, 5
-Reversed: 5, 4, 3, 2, 1
-```
-
----
-
-### Test Case 5 – Palindrome Checker
-
-Input:
-
-```javascript
-let str = "racecar";
-```
-
-Expected Output:
-
-```text
-racecar is a Palindrome
-```
+| Test | File | Features Tested |
+|------|------|----------------|
+| 1 | `01_odd_even.js` | if/else, modulo, string concatenation |
+| 2 | `02_triangle_pattern.js` | Nested for loops, string concatenation |
+| 3 | `03_armstrong.js` | Functions, while loop, Math.floor, exponentiation |
+| 4 | `04_array_reverse.js` | Arrays, reverse, join |
+| 5 | `05_palindrome.js` | String split/reverse/join chaining |
+| 6 | `06_data_types.js` | Numbers, strings, booleans, null, undefined, typeof |
+| 7 | `07_operators.js` | Arithmetic, comparison, logical, ternary, compound assignment |
+| 8 | `08_math_functions.js` | Math.floor/ceil/round/abs/sqrt/pow/min/max/PI/E |
+| 9 | `09_loops.js` | for, while, do-while, break, continue |
+| 10 | `10_array_methods.js` | push, pop, indexOf, includes, slice, concat, reverse, find |
+| 11 | `11_objects.js` | Object literals, property access/mutation, Object.keys/values |
+| 12 | `12_date.js` | Date.now() |
+| 13 | `13_callbacks.js` | map, filter, reduce, forEach, arrow functions, chaining |
 
 ---
 
 ## Adding More Test Cases
 
-The current version of the project demonstrates functionality using hardcoded test cases inside `main.cpp`.
-
-To add a new test case:
-
-### Step 1: Write the JavaScript Test Case
-
-Example:
+Create a new `.js` file in the `tests/` directory:
 
 ```javascript
-let a = 10;
-let b = 20;
+let greeting = "Hello";
+let name = "World";
 
-console.log(a + b);
+console.log(greeting + " " + name);
 ```
 
-### Step 2: Add an Equivalent Hardcoded Test in main.cpp
-
-```cpp
-std::cout
-    << "===== TEST 6 ====="
-    << std::endl;
-
-int a = 10;
-int b = 20;
-
-std::cout
-    << a + b
-    << std::endl;
-```
-
-### Step 3: Rebuild the Project
+Run it:
 
 ```bash
-cmake --build build
+.\build\Debug\MiniV8.exe tests/my_test.js
 ```
 
-### Step 4: Run the Executable
+Or run all tests at once:
 
 ```bash
-.\build\Debug\MiniV8.exe
+.\build\Debug\MiniV8.exe --test-dir tests
 ```
 
-### Example Output
-
-```text
-===== TEST 6 =====
-30
-```
-
-### Note
-
-The original intent of MiniV8 is to execute JavaScript-like code through the Lexer, Parser, AST, and Interpreter pipeline. However, for demonstration and testing purposes, the current version uses hardcoded equivalents of the JavaScript test cases inside `main.cpp`.
-
-Additional JavaScript test cases can be added by writing the desired JavaScript program and implementing its equivalent logic inside `main.cpp`.
-
+---
 
 ## Project Structure
 
@@ -283,24 +157,32 @@ Additional JavaScript test cases can be added by writing the desired JavaScript 
 MiniV8/
 │
 ├── ast/
-│   ├── AST.h
-│   └── AST.cpp
+│   ├── AST.h           # AST node definitions
+│   ├── AST.cpp
+│   ├── ASTPrinter.h    # AST debug printer
+│   └── ASTPrinter.cpp
 │
 ├── lexer/
-│   ├── Lexer.h
-│   └── Lexer.cpp
+│   ├── Lexer.h         # Token types and lexer class
+│   ├── Lexer.cpp       # Lexical analysis implementation
+│   └── TokenUtils.h    # Token type name utilities
 │
 ├── parser/
-│   ├── Parser.h
-│   └── Parser.cpp
+│   ├── Parser.h        # Parser class declaration
+│   └── Parser.cpp      # Recursive descent parser
 │
 ├── runtime/
-│   ├── Interpreter.h
-│   ├── Interpreter.cpp
-│   ├── Environment.h
-│   └── JSValue.h
+│   ├── Interpreter.h   # Interpreter class declaration
+│   ├── Interpreter.cpp # Runtime evaluation engine
+│   ├── Environment.h   # Variable scope management
+│   └── JSValue.h       # JavaScript value types
 │
-├── main.cpp
+├── tests/              # JavaScript test files
+│   ├── 01_odd_even.js
+│   ├── ...
+│   └── 13_callbacks.js
+│
+├── main.cpp            # CLI entry point
 │
 ├── CMakeLists.txt
 │
