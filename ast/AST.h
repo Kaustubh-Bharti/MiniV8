@@ -296,3 +296,11 @@ public:
     }
 };
 
+class ArrayLiteral : public Expression
+{
+public:
+    std::vector<
+        std::unique_ptr<Expression>
+    > elements;
+};
+

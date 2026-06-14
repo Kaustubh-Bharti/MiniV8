@@ -2,6 +2,28 @@
 #include <variant>
 #include <stdexcept>
 #include <iostream>
+#include <cmath>
+#include <algorithm>
+
+std::string numberToString(
+    double number)
+{
+    if (
+        number ==
+        static_cast<int>(number)
+    )
+    {
+        return std::to_string(
+            static_cast<int>(
+                number
+            )
+        );
+    }
+
+    return std::to_string(
+        number
+    );
+}
 
 bool isTruthy(const JSValue& value)
 {
@@ -32,6 +54,67 @@ JSValue Interpreter::evaluate(
     {
         throw std::runtime_error(
             "Null expression");
+    }
+
+    if (auto unary =
+        dynamic_cast<
+            UnaryExpression*>(
+                expression))
+    {
+        auto identifier =
+            dynamic_cast<
+                Identifier*>(
+                    unary->operand.get()
+                );
+
+        if (!identifier)
+        {
+            throw std::runtime_error(
+                "Unary operator requires identifier"
+            );
+        }
+
+        JSValue current =
+            environment.get(
+                identifier->name
+            );
+
+        double value =
+            std::get<double>(
+                current.value
+            );
+
+        if (unary->op == "++")
+        {
+            value++;
+
+            JSValue result(
+                value
+            );
+
+            environment.assign(
+                identifier->name,
+                result
+            );
+
+            return result;
+        }
+
+        if (unary->op == "--")
+        {
+            value--;
+
+            JSValue result(
+                value
+            );
+
+            environment.assign(
+                identifier->name,
+                result
+            );
+
+            return result;
+        }
     }
 
     if (auto number =
@@ -116,9 +199,11 @@ JSValue Interpreter::evaluate(
                 else
                 {
                     lhs =
-                        std::to_string(
+                        numberToString(
                             std::get<double>(
-                                left.value));
+                                left.value
+                            )
+                        );
                 }
 
                 if (
@@ -133,9 +218,11 @@ JSValue Interpreter::evaluate(
                 else
                 {
                     rhs =
-                        std::to_string(
+                        numberToString(
                             std::get<double>(
-                                right.value));
+                                right.value
+                            )
+                        );
                 }
 
                 return JSValue(
@@ -162,6 +249,13 @@ JSValue Interpreter::evaluate(
 
         if (binary->op == "*")
             return JSValue(lhs * rhs);
+        
+        if (binary->op == "**")
+        {
+            return JSValue(
+                std::pow(lhs, rhs)
+            );
+        }
 
         if (binary->op == "/")
             return JSValue(lhs / rhs);
@@ -201,10 +295,159 @@ JSValue Interpreter::evaluate(
     }
 
     if (auto call =
-    dynamic_cast<
-        CallExpression*>(
-            expression))
+        dynamic_cast<
+            CallExpression*>(
+                expression))
     {
+    if (
+        call->callee.size() > 6
+        &&
+        call->callee.substr(
+            call->callee.size() - 6
+        ) == ".split"
+    )
+    {
+        std::string variableName =
+            call->callee.substr(
+                0,
+                call->callee.size() - 6
+            );
+
+        JSValue stringValue =
+            environment.get(
+                variableName
+            );
+
+        std::string text =
+            std::get<std::string>(
+                stringValue.value
+            );
+
+        std::vector<JSValue> result;
+
+        for (char c : text)
+        {
+            result.push_back(
+                JSValue(
+                    std::string(
+                        1,
+                        c
+                    )
+                )
+            );
+        }
+
+        return JSValue(
+            result
+        );
+    }
+        if (
+            call->callee.size() > 8
+            &&
+            call->callee.substr(
+                call->callee.size() - 8
+            ) == ".reverse"
+        )
+        {
+            std::string variableName =
+                call->callee.substr(
+                    0,
+                    call->callee.size() - 8
+                );
+
+            JSValue arrayValue =
+                environment.get(
+                    variableName
+                );
+
+            auto array =
+                std::get<
+                    std::vector<JSValue>>(
+                        arrayValue.value
+                    );
+
+            std::reverse(
+                array.begin(),
+                array.end()
+            );
+
+            return JSValue(
+                array
+            );
+        }
+        if (
+            call->callee.size() > 5
+            &&
+            call->callee.substr(
+                call->callee.size() - 5
+            ) == ".join"
+        )
+        {
+            std::string variableName =
+                call->callee.substr(
+                    0,
+                    call->callee.size() - 5
+                );
+
+            JSValue arrayValue =
+                environment.get(
+                    variableName
+                );
+
+            auto array =
+                std::get<
+                    std::vector<JSValue>>(
+                        arrayValue.value
+                    );
+
+            std::string separator =
+                ",";
+
+            if (!call->arguments.empty())
+            {
+                auto separatorValue =
+                    evaluate(
+                        call->arguments[0].get()
+                    );
+
+                separator =
+                    std::get<std::string>(
+                        separatorValue.value
+                    );
+            }
+
+            std::string result;
+
+            for (
+                size_t i = 0;
+                i < array.size();
+                i++
+            )
+            {
+                if (i > 0)
+                {
+                    result += separator;
+                }
+
+                if (
+                    std::holds_alternative<
+                        double>(
+                            array[i].value))
+                {
+                    result +=
+                        std::to_string(
+                            std::get<double>(
+                                array[i].value
+                            )
+                        );
+                }
+            }
+
+            return JSValue(
+                result
+            );
+        }
+
         std::vector<JSValue> args;
 
         for (auto& argument :
@@ -241,6 +484,31 @@ JSValue Interpreter::evaluate(
         );
 
         return value;
+    }
+
+    if (auto array =
+        dynamic_cast<
+            ArrayLiteral*>(
+                expression))
+    {
+        std::vector<JSValue>
+            values;
+
+        for (
+            auto& element :
+            array->elements
+        )
+        {
+            values.push_back(
+                evaluate(
+                    element.get()
+                )
+            );
+        }
+
+        return JSValue(
+            values
+        );
     }
 
     throw std::runtime_error(
@@ -336,7 +604,6 @@ void Interpreter::execute(
             WhileStatement*>(
                 statement))
     {
-        int counter = 0;
 
         while (
             isTruthy(
@@ -347,16 +614,7 @@ void Interpreter::execute(
             )
         )
         {
-            std::cout
-                << "WHILE ITERATION"
-                << std::endl;
-
-            counter++;
-
-            if (counter >= 3)
-            {
-                break;
-            }
+            
 
             if (whileStatement->body)
             {
@@ -521,6 +779,42 @@ JSValue Interpreter::callFunction(
         return JSValue(0.0);
     }
 
+    if (name == "Math.floor")
+    {
+        return JSValue(
+            std::floor(
+                std::get<double>(
+                    arguments[0].value
+                )
+            )
+        );
+    }
+
+    if (name == "Math.abs")
+    {
+        return JSValue(
+            std::abs(
+                std::get<double>(
+                    arguments[0].value
+                )
+            )
+        );
+    }
+
+    if (name == "Math.pow")
+    {
+        return JSValue(
+            std::pow(
+                std::get<double>(
+                    arguments[0].value
+                ),
+                std::get<double>(
+                    arguments[1].value
+                )
+            )
+        );
+    }
+
     auto function =
         environment.getFunction(
             name
@@ -560,3 +854,4 @@ JSValue Interpreter::callFunction(
 
     return JSValue(0.0);
 }
+

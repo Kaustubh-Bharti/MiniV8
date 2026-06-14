@@ -167,24 +167,59 @@ std::vector<Token> Lexer::tokenize()
 
         case '+':
             if (match('+'))
-                addToken(tokens, TokenType::Increment);
+                tokens.emplace_back(TokenType::PlusPlus, "++");
             else if (match('='))
-                addToken(tokens, TokenType::PlusAssign);
+                tokens.emplace_back(TokenType::PlusEqual, "+=");
             else
-                addToken(tokens, TokenType::Plus);
+                tokens.emplace_back(TokenType::Plus, "+");
             break;
 
         case '-':
             if (match('-'))
-                addToken(tokens, TokenType::Decrement);
+            {
+                tokens.emplace_back(
+                    TokenType::MinusMinus,
+                    "--"
+                );
+            }
             else if (match('='))
-                addToken(tokens, TokenType::MinusAssign);
+            {
+                tokens.emplace_back(
+                    TokenType::MinusEqual,
+                    "-="
+                );
+            }
             else
-                addToken(tokens, TokenType::Minus);
+            {
+                tokens.emplace_back(
+                    TokenType::Minus,
+                    "-"
+                );
+            }
             break;
 
         case '*':
-            addToken(tokens, TokenType::Star);
+            if (match('*'))
+            {
+                tokens.emplace_back(
+                    TokenType::Power,
+                    "**"
+                );
+            }
+            else if (match('='))
+            {
+                tokens.emplace_back(
+                    TokenType::StarEqual,
+                    "*="
+                );
+            }
+            else
+            {
+                tokens.emplace_back(
+                    TokenType::Star,
+                    "*"
+                );
+            }
             break;
 
         case '/':
@@ -212,16 +247,39 @@ std::vector<Token> Lexer::tokenize()
                     advance();
                 }
             }
+            else if (match('='))
+            {
+                tokens.emplace_back(
+                    TokenType::SlashEqual,
+                    "/="
+                );
+            }
             else
             {
-                addToken(tokens, TokenType::Slash);
+                addToken(
+                    tokens,
+                    TokenType::Slash
+                );
             }
 
             break;
         }
 
         case '%':
-            addToken(tokens, TokenType::Percent);
+            if (match('='))
+            {
+                tokens.emplace_back(
+                    TokenType::PercentEqual,
+                    "%="
+                );
+            }
+            else
+            {
+                tokens.emplace_back(
+                    TokenType::Percent,
+                    "%"
+                );
+            }
             break;
         
         case '=':

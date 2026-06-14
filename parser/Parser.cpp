@@ -54,8 +54,55 @@ bool Parser::match(TokenType type)
     return false;
 }
 
+std::unique_ptr<Expression> Parser::parseArrayLiteral()
+{
+    if (!match(TokenType::LeftBracket))
+    {
+        return nullptr;
+    }
+
+    auto array =
+        std::make_unique<
+            ArrayLiteral>();
+
+    while (
+        !check(TokenType::RightBracket)
+    )
+    {
+        auto element =
+            parseExpression();
+
+        if (!element)
+        {
+            return nullptr;
+        }
+
+        array->elements.push_back(
+            std::move(element)
+        );
+
+        if (
+            !check(
+                TokenType::RightBracket
+            )
+        )
+        {
+            match(TokenType::Comma);
+        }
+    }
+
+    match(TokenType::RightBracket);
+
+    return array;
+}
+
 std::unique_ptr<Expression> Parser::parsePrimary()
 {
+    if (check(TokenType::LeftBracket))
+    {
+        return parseArrayLiteral();
+    }
+
     if (match(TokenType::Number))
     {
         double value =
@@ -75,13 +122,24 @@ std::unique_ptr<Expression> Parser::parsePrimary()
 
     if (check(TokenType::Identifier))
     {
-        if (
-            current + 1 <
-            tokens.size()
+        size_t lookahead =
+            current + 1;
+
+        while (
+            lookahead < tokens.size()
             &&
-            tokens[current + 1].type
-                ==
-            TokenType::LeftParen
+            tokens[lookahead].type
+                == TokenType::Dot
+        )
+        {
+            lookahead += 2;
+        }
+
+        if (
+            lookahead < tokens.size()
+            &&
+            tokens[lookahead].type
+                == TokenType::LeftParen
         )
         {
             return parseCallExpression();
@@ -125,7 +183,7 @@ std::unique_ptr<Expression> Parser::parsePrimary()
 
 std::unique_ptr<Expression> Parser::parseExpression()
 {
-    return parseLogical();
+    return parseAssignment();
 }
 
 std::unique_ptr<Expression> Parser::parseEquality()
@@ -224,7 +282,8 @@ std::unique_ptr<Expression> Parser::parseFactor()
     while (
         match(TokenType::Star) ||
         match(TokenType::Slash) ||
-        match(TokenType::Percent)
+        match(TokenType::Percent) ||
+        match(TokenType::Power)
     )
     {
         std::string op =
@@ -243,11 +302,6 @@ std::unique_ptr<Expression> Parser::parseFactor()
     }
 
     return expression;
-}
-
-std::unique_ptr<Expression> Parser::parseUnary()
-{
-    return parsePrimary();
 }
 
 std::unique_ptr<VariableDeclaration> Parser::parseVariableDeclaration()
@@ -590,7 +644,22 @@ std::unique_ptr<Statement> Parser::parseStatement()
         return parseReturnStatement();
     }
 
-    return nullptr;
+    auto expression =
+        parseExpression();
+
+    if (!expression)
+    {
+        return nullptr;
+    }
+
+    if (match(TokenType::Semicolon))
+    {
+    }
+
+    return std::make_unique<
+        ExpressionStatement>(
+            std::move(expression)
+        );
 }
 
 std::unique_ptr<Program> Parser::parseProgram()
@@ -625,6 +694,17 @@ std::unique_ptr<CallExpression> Parser::parseCallExpression()
 
     std::string callee =
         previous().value;
+
+    while (match(TokenType::Dot))
+    {
+        if (!match(TokenType::Identifier))
+        {
+            return nullptr;
+        }
+
+        callee += ".";
+        callee += previous().value;
+    }
 
     if (!match(TokenType::LeftParen))
     {
@@ -726,3 +806,113 @@ std::unique_ptr<ForStatement> Parser::parseForStatement()
             std::move(body)
         );
 }
+
+std::unique_ptr<Expression> Parser::parseAssignment()
+{
+    auto expression =
+        parseLogical();
+
+    if (
+        match(TokenType::Assign) ||
+        match(TokenType::PlusEqual) ||
+        match(TokenType::MinusEqual) ||
+        match(TokenType::StarEqual) ||
+        match(TokenType::SlashEqual) ||
+        match(TokenType::PercentEqual)
+    )
+    {
+        TokenType assignmentType =
+            previous().type;
+
+        auto value =
+            parseAssignment();
+
+        auto identifier =
+            dynamic_cast<
+                Identifier*>(
+                    expression.get()
+                );
+
+        if (!identifier)
+        {
+            return nullptr;
+        }
+
+        std::string op;
+
+        if (assignmentType == TokenType::PlusEqual)
+        {
+            op = "+";
+        }
+        else if (assignmentType == TokenType::MinusEqual)
+        {
+            op = "-";
+        }
+        else if (assignmentType == TokenType::StarEqual)
+        {
+            op = "*";
+        }
+        else if (assignmentType == TokenType::SlashEqual)
+        {
+            op = "/";
+        }
+        else if (assignmentType == TokenType::PercentEqual)
+        {
+            op = "%";
+        }
+
+        if (!op.empty())
+        {
+            value =
+                std::make_unique<
+                    BinaryExpression>(
+                        std::make_unique<
+                            Identifier>(
+                                identifier->name
+                            ),
+
+                        op,
+
+                        std::move(value)
+                    );
+        }
+
+        return std::make_unique<
+            AssignmentExpression>(
+                identifier->name,
+                std::move(value)
+            );
+    }
+
+    return expression;
+}
+
+std::unique_ptr<Expression> Parser::parseUnary()
+{
+    if (match(TokenType::PlusPlus))
+    {
+        auto operand =
+            parsePrimary();
+
+        return std::make_unique<
+            UnaryExpression>(
+                "++",
+                std::move(operand)
+            );
+    }
+
+    if (match(TokenType::MinusMinus))
+    {
+        auto operand =
+            parsePrimary();
+
+        return std::make_unique<
+            UnaryExpression>(
+                "--",
+                std::move(operand)
+            );
+    }
+
+    return parsePrimary();
+}
+

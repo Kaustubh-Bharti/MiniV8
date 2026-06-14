@@ -2,6 +2,7 @@
 
 #include <string>
 #include <variant>
+#include <vector>
 
 class JSValue
 {
@@ -10,7 +11,8 @@ public:
         std::variant<
             double,
             bool,
-            std::string
+            std::string,
+            std::vector<JSValue>
         >;
 
     ValueType value;
@@ -33,6 +35,12 @@ public:
     explicit JSValue(
         const std::string& string)
         : value(string)
+    {
+    }
+
+    explicit JSValue(
+        const std::vector<JSValue>& array)
+        : value(array)
     {
     }
 };

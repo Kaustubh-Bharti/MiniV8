@@ -62,4 +62,8 @@ public:
     std::unique_ptr<Statement> parseStatement();
 
     std::unique_ptr<CallExpression> parseCallExpression();
+
+    std::unique_ptr<Expression> parseAssignment();
+
+    std::unique_ptr<Expression> parseArrayLiteral();
 };

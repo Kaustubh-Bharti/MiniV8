@@ -84,7 +84,16 @@ enum class TokenType
     Comma,
     Dot,
     Colon,
-    Spread
+    Spread,
+
+    PlusEqual,
+    MinusEqual,
+    StarEqual,
+    SlashEqual,
+    PercentEqual,
+
+    PlusPlus,
+    MinusMinus
 };
 
 struct Token
