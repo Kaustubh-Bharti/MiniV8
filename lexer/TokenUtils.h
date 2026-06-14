@@ -58,6 +58,24 @@ inline std::string tokenTypeToString(TokenType type)
 
         case TokenType::Dot: return "Dot";
 
+        case TokenType::Arrow: return "Arrow";
+
+        case TokenType::Spread: return "Spread";
+
+        case TokenType::Switch: return "Switch";
+
+        case TokenType::Case: return "Case";
+
+        case TokenType::Default: return "Default";
+
+        case TokenType::Break: return "Break";
+
+        case TokenType::Continue: return "Continue";
+
+        case TokenType::Do: return "Do";
+
+        case TokenType::New: return "New";
+
         default:
             return "Other";
     }

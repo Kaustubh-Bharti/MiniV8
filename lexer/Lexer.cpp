@@ -72,11 +72,34 @@ std::vector<Token> Lexer::tokenize()
             else if (identifier == "undefined")
                 tokens.emplace_back(TokenType::Undefined, identifier);
 
+            else if (identifier == "switch")
+                tokens.emplace_back(TokenType::Switch, identifier);
+
+            else if (identifier == "case")
+                tokens.emplace_back(TokenType::Case, identifier);
+
+            else if (identifier == "default")
+                tokens.emplace_back(TokenType::Default, identifier);
+
+            else if (identifier == "break")
+                tokens.emplace_back(TokenType::Break, identifier);
+
+            else if (identifier == "continue")
+                tokens.emplace_back(TokenType::Continue, identifier);
+
+            else if (identifier == "do")
+                tokens.emplace_back(TokenType::Do, identifier);
+
+            else if (identifier == "new")
+                tokens.emplace_back(TokenType::New, identifier);
+
             else
                 tokens.emplace_back(TokenType::Identifier, identifier);
 
             continue;
         }
+
+        
 
         switch (c)
         {
@@ -123,8 +146,18 @@ std::vector<Token> Lexer::tokenize()
             break;
 
         case '.':
-            addToken(tokens, TokenType::Dot);
+        {
+            if (match('.') && match('.'))
+            {
+                addToken(tokens, TokenType::Spread);
+            }
+            else
+            {
+                addToken(tokens, TokenType::Dot);
+            }
+
             break;
+        }
 
         case '+':
             if (match('+'))
@@ -186,7 +219,11 @@ std::vector<Token> Lexer::tokenize()
             break;
         
         case '=':
-            if (match('='))
+            if (match('>'))
+            {
+                addToken(tokens, TokenType::Arrow);
+            }
+            else if (match('='))
             {
                 if (match('='))
                     addToken(tokens, TokenType::StrictEqual);

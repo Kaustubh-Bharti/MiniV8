@@ -5,7 +5,7 @@
 int main()
 {
     Lexer lexer(
-        "{ name: \"John\", age: 20 }"
+        "switch case default break continue do new"
     );
 
     auto tokens = lexer.tokenize();

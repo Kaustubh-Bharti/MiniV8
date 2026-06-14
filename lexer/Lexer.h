@@ -22,6 +22,17 @@ enum class TokenType
     For,
     While,
 
+    Switch,
+    Case,
+    Default,
+
+    Break,
+    Continue,
+
+    Do,
+
+    New,
+    
     True,
     False,
     Null,
@@ -36,6 +47,7 @@ enum class TokenType
     Power,
 
     Assign,
+    Arrow,
 
     Equal,
     StrictEqual,
@@ -71,7 +83,8 @@ enum class TokenType
     Semicolon,
     Comma,
     Dot,
-    Colon
+    Colon,
+    Spread
 };
 
 struct Token
