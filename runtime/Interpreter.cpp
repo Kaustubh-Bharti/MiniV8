@@ -431,6 +431,24 @@ JSValue Interpreter::evaluate(
             }
         }
 
+        // String comparison for relational ops
+        if (left.isString() && right.isString())
+        {
+            auto& lstr = std::get<std::string>(
+                left.value);
+            auto& rstr = std::get<std::string>(
+                right.value);
+
+            if (binary->op == ">")
+                return JSValue(lstr > rstr);
+            if (binary->op == "<")
+                return JSValue(lstr < rstr);
+            if (binary->op == ">=")
+                return JSValue(lstr >= rstr);
+            if (binary->op == "<=")
+                return JSValue(lstr <= rstr);
+        }
+
         // Numeric operations
         double lhs = 0;
         double rhs = 0;
@@ -810,6 +828,74 @@ JSValue Interpreter::evaluate(
             auto ident = dynamic_cast<
                 Identifier*>(
                     memAssign->object.get());
+            if (ident)
+            {
+                environment.assign(
+                    ident->name, objVal);
+            }
+        }
+
+        return newVal;
+    }
+
+    // ----- Index Assignment (arr[i] = val) -----
+    if (auto idxAssign =
+        dynamic_cast<
+            IndexAssignmentExpression*>(
+                expression))
+    {
+        auto objVal = evaluate(
+            idxAssign->object.get());
+
+        auto idxVal = evaluate(
+            idxAssign->index.get());
+
+        auto newVal = evaluate(
+            idxAssign->value.get());
+
+        if (objVal.isArray() &&
+            idxVal.isNumber())
+        {
+            auto& arr = std::get<
+                std::vector<JSValue>>(
+                    objVal.value);
+
+            int idx = static_cast<int>(
+                std::get<double>(
+                    idxVal.value));
+
+            if (idx >= 0 &&
+                idx < static_cast<int>(
+                    arr.size()))
+            {
+                arr[idx] = newVal;
+            }
+
+            // Write back to variable
+            auto ident = dynamic_cast<
+                Identifier*>(
+                    idxAssign->object.get());
+            if (ident)
+            {
+                environment.assign(
+                    ident->name, objVal);
+            }
+        }
+
+        if (objVal.isObject() &&
+            idxVal.isString())
+        {
+            auto& obj = std::get<
+                std::shared_ptr<JSObject>>(
+                    objVal.value);
+            obj->set(
+                std::get<std::string>(
+                    idxVal.value),
+                newVal);
+
+            auto ident = dynamic_cast<
+                Identifier*>(
+                    idxAssign->object.get());
             if (ident)
             {
                 environment.assign(

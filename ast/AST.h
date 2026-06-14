@@ -224,6 +224,26 @@ public:
     }
 };
 
+// ===== Index Assignment (arr[i] = val) =====
+
+class IndexAssignmentExpression : public Expression
+{
+public:
+    std::unique_ptr<Expression> object;
+    std::unique_ptr<Expression> index;
+    std::unique_ptr<Expression> value;
+
+    IndexAssignmentExpression(
+        std::unique_ptr<Expression> object,
+        std::unique_ptr<Expression> index,
+        std::unique_ptr<Expression> value)
+        : object(std::move(object)),
+          index(std::move(index)),
+          value(std::move(value))
+    {
+    }
+};
+
 // ===== Call Expression =====
 // Callee is now an Expression (Identifier or MemberExpression)
 

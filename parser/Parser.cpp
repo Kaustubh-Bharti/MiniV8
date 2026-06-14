@@ -190,6 +190,26 @@ std::unique_ptr<Expression> Parser::parseAssignment()
                     std::move(value));
         }
 
+        // Check for index assignment: arr[i] = val
+        auto indexExpr =
+            dynamic_cast<IndexExpression*>(
+                expression.get());
+
+        if (indexExpr &&
+            assignmentType == TokenType::Assign)
+        {
+            auto obj = std::move(
+                indexExpr->object);
+            auto idx = std::move(
+                indexExpr->index);
+
+            return std::make_unique<
+                IndexAssignmentExpression>(
+                    std::move(obj),
+                    std::move(idx),
+                    std::move(value));
+        }
+
         auto identifier =
             dynamic_cast<
                 Identifier*>(
