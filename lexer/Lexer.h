@@ -70,7 +70,8 @@ enum class TokenType
 
     Semicolon,
     Comma,
-    Dot
+    Dot,
+    Colon
 };
 
 struct Token

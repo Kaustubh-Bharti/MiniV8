@@ -40,6 +40,24 @@ inline std::string tokenTypeToString(TokenType type)
 
         case TokenType::EndOfFile: return "EOF";
 
+        case TokenType::Colon: return "Colon";
+
+        case TokenType::LeftParen: return "LeftParen";
+
+        case TokenType::RightParen: return "RightParen";
+
+        case TokenType::LeftBrace: return "LeftBrace";
+
+        case TokenType::RightBrace: return "RightBrace";
+
+        case TokenType::LeftBracket: return "LeftBracket";
+
+        case TokenType::RightBracket: return "RightBracket";
+
+        case TokenType::Comma: return "Comma";
+
+        case TokenType::Dot: return "Dot";
+
         default:
             return "Other";
     }

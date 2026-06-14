@@ -113,7 +113,11 @@ std::vector<Token> Lexer::tokenize()
         case ';':
             addToken(tokens, TokenType::Semicolon);
             break;
-
+        
+        case ':':
+            addToken(tokens, TokenType::Colon);
+            break;
+            
         case ',':
             addToken(tokens, TokenType::Comma);
             break;
