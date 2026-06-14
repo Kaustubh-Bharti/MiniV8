@@ -120,3 +120,21 @@ void printAST(
     );
 }
 
+void printAST(
+    const FunctionDeclaration* statement,
+    int indent)
+{
+    if (!statement)
+    {
+        return;
+    }
+
+    printIndent(indent);
+
+    std::cout
+        << "FunctionDeclaration("
+        << statement->name
+        << ")"
+        << std::endl;
+}
+

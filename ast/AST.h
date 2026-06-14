@@ -162,3 +162,15 @@ public:
     }
 };
 
+class FunctionDeclaration : public Statement
+{
+public:
+    std::string name;
+
+    explicit FunctionDeclaration(
+        const std::string& name)
+        : name(name)
+    {
+    }
+};
+

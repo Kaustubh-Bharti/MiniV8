@@ -48,4 +48,6 @@ public:
     std::unique_ptr<IfStatement> parseIfStatement();
 
     std::unique_ptr<WhileStatement> parseWhileStatement();
+
+    std::unique_ptr<FunctionDeclaration> parseFunctionDeclaration();
 };

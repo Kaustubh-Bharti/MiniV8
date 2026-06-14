@@ -7,7 +7,7 @@
 int main()
 {
     Lexer lexer(
-        "while (count < 10) {}"
+        "function greet() {}"
     );
 
     auto tokens =
@@ -15,10 +15,10 @@ int main()
 
     Parser parser(tokens);
 
-    auto statement =
-        parser.parseWhileStatement();
+    auto function =
+        parser.parseFunctionDeclaration();
 
-    if (!statement)
+    if (!function)
     {
         std::cout
             << "Parse failed"
@@ -28,7 +28,7 @@ int main()
     }
 
     printAST(
-        statement.get()
+        function.get()
     );
 
     return 0;

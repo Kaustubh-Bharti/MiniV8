@@ -395,5 +395,44 @@ std::unique_ptr<Expression> Parser::parseLogical()
     return expression;
 }
 
+std::unique_ptr<FunctionDeclaration> Parser::parseFunctionDeclaration()
+{
+    if (!match(TokenType::Function))
+    {
+        return nullptr;
+    }
 
+    if (!match(TokenType::Identifier))
+    {
+        return nullptr;
+    }
+
+    std::string name =
+        previous().value;
+
+    if (!match(TokenType::LeftParen))
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::RightParen))
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::LeftBrace))
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::RightBrace))
+    {
+        return nullptr;
+    }
+
+    return std::make_unique<
+        FunctionDeclaration>(
+            name
+        );
+}
 
