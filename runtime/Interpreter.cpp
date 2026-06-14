@@ -243,6 +243,20 @@ void Interpreter::execute(
 
         return;
     }
+
+    if (auto returnStatement =
+        dynamic_cast<
+            ReturnStatement*>(
+                statement))
+    {
+        returnValue =
+            evaluate(
+                returnStatement
+                    ->value.get()
+            );
+
+        return;
+    }
 }
 
 void Interpreter::executeProgram(
@@ -260,4 +274,48 @@ void Interpreter::executeProgram(
             statement.get()
         );
     }
+}
+
+JSValue Interpreter::callFunction(
+    const std::string& name,
+    const std::vector<JSValue>& arguments)
+{
+    auto function =
+        environment.getFunction(
+            name
+        );
+
+    returnValue.reset();
+
+    for (
+        size_t i = 0;
+        i < function->parameters.size()
+        &&
+        i < arguments.size();
+        i++
+    )
+    {
+        environment.define(
+            function->parameters[i],
+            arguments[i]
+        );
+    }
+
+    if (function->body)
+    {
+        for (auto& statement :
+             function->body->statements)
+        {
+            execute(
+                statement.get()
+            );
+
+            if (returnValue.has_value())
+            {
+                return *returnValue;
+            }
+        }
+    }
+
+    return JSValue(0.0);
 }

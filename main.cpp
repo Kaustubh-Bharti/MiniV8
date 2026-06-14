@@ -10,26 +10,43 @@ int main()
     auto function =
         std::make_unique<
             FunctionDeclaration>(
-                "greet"
+                "identity"
             );
+
+    function->parameters.push_back(
+        "x"
+    );
+
+    function->body =
+        std::make_unique<
+            BlockStatement>();
+
+    function->body
+        ->statements.push_back(
+            std::make_unique<
+                ReturnStatement>(
+                    std::make_unique<
+                        Identifier>("x")
+                )
+        );
 
     interpreter.execute(
         function.get()
     );
 
-    auto stored =
-        interpreter
-            .getEnvironment()
-            .getFunction(
-                "greet"
-            );
+    auto result =
+        interpreter.callFunction(
+            "identity",
+            {
+                JSValue(99.0)
+            }
+        );
 
-    if (stored)
-    {
-        std::cout
-            << stored->name
-            << std::endl;
-    }
+    std::cout
+        << std::get<double>(
+            result.value
+        )
+        << std::endl;
 
     return 0;
 }
