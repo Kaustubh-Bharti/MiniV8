@@ -407,22 +407,95 @@ std::unique_ptr<FunctionDeclaration> Parser::parseFunctionDeclaration()
         return nullptr;
     }
 
-    std::string name =
-        previous().value;
+    auto function =
+        std::make_unique<FunctionDeclaration>(
+            previous().value
+        );
 
     if (!match(TokenType::LeftParen))
     {
         return nullptr;
     }
 
-    if (!match(TokenType::RightParen))
+    while (
+        !check(TokenType::RightParen)
+    )
+    {
+        if (!match(TokenType::Identifier))
+        {
+            return nullptr;
+        }
+
+        function->parameters.push_back(
+            previous().value
+        );
+
+        if (!check(TokenType::RightParen))
+        {
+            match(TokenType::Comma);
+        }
+    }
+
+    match(TokenType::RightParen);
+
+    function->body =
+        parseBlockStatement();
+
+    return function;
+}
+
+std::unique_ptr<ReturnStatement> Parser::parseReturnStatement()
+{
+    if (!match(TokenType::Return))
     {
         return nullptr;
     }
 
+    auto value =
+        parseExpression();
+
+    if (!value)
+    {
+        return nullptr;
+    }
+
+    if (!match(TokenType::Semicolon))
+    {
+        return nullptr;
+    }
+
+    return std::make_unique<
+        ReturnStatement>(
+            std::move(value)
+        );
+}
+
+std::unique_ptr<BlockStatement> Parser::parseBlockStatement()
+{
     if (!match(TokenType::LeftBrace))
     {
         return nullptr;
+    }
+
+    auto block =
+        std::make_unique<BlockStatement>();
+
+    while (
+        !check(TokenType::RightBrace) &&
+        !isAtEnd()
+    )
+    {
+        auto statement =
+            parseStatement();
+
+        if (!statement)
+        {
+            return nullptr;
+        }
+
+        block->statements.push_back(
+            std::move(statement)
+        );
     }
 
     if (!match(TokenType::RightBrace))
@@ -430,9 +503,60 @@ std::unique_ptr<FunctionDeclaration> Parser::parseFunctionDeclaration()
         return nullptr;
     }
 
-    return std::make_unique<
-        FunctionDeclaration>(
-            name
+    return block;
+}
+
+std::unique_ptr<Statement> Parser::parseStatement()
+{
+    if (check(TokenType::Let) ||
+        check(TokenType::Const))
+    {
+        return parseVariableDeclaration();
+    }
+
+    if (check(TokenType::If))
+    {
+        return parseIfStatement();
+    }
+
+    if (check(TokenType::While))
+    {
+        return parseWhileStatement();
+    }
+
+    if (check(TokenType::Function))
+    {
+        return parseFunctionDeclaration();
+    }
+
+    if (check(TokenType::Return))
+    {
+        return parseReturnStatement();
+    }
+
+    return nullptr;
+}
+
+std::unique_ptr<Program> Parser::parseProgram()
+{
+    auto program =
+        std::make_unique<Program>();
+
+    while (!isAtEnd())
+    {
+        auto statement =
+            parseStatement();
+
+        if (!statement)
+        {
+            break;
+        }
+
+        program->statements.push_back(
+            std::move(statement)
         );
+    }
+
+    return program;
 }
 

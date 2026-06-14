@@ -21,3 +21,8 @@ void printAST(
     const FunctionDeclaration* statement,
     int indent = 0
 );
+
+void printAST(
+    const ReturnStatement* statement,
+    int indent = 0
+);

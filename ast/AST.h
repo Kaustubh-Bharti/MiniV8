@@ -4,6 +4,17 @@
 #include <string>
 #include <vector>
 
+class Statement;
+class Expression;
+
+class BlockStatement;
+
+class FunctionDeclaration;
+class Program;
+class CallExpression;
+class ExpressionStatement;
+class ReturnStatement;
+
 class Node
 {
 public:
@@ -167,9 +178,65 @@ class FunctionDeclaration : public Statement
 public:
     std::string name;
 
+    std::vector<std::string> parameters;
+
+    std::unique_ptr<BlockStatement> body;
+
     explicit FunctionDeclaration(
         const std::string& name)
         : name(name)
+    {
+    }
+};
+
+class ReturnStatement : public Statement
+{
+public:
+    std::unique_ptr<Expression> value;
+
+    explicit ReturnStatement(
+        std::unique_ptr<Expression> value)
+        : value(std::move(value))
+    {
+    }
+};
+
+class BlockStatement : public Statement
+{
+public:
+    std::vector<std::unique_ptr<Statement>> statements;
+};
+
+class Program : public Node
+{
+public:
+    std::vector<std::unique_ptr<Statement>> statements;
+};
+
+class ExpressionStatement : public Statement
+{
+public:
+    std::unique_ptr<Expression> expression;
+
+    explicit ExpressionStatement(
+        std::unique_ptr<Expression> expression)
+        : expression(std::move(expression))
+    {
+    }
+};
+
+class CallExpression : public Expression
+{
+public:
+    std::string callee;
+
+    std::vector<
+        std::unique_ptr<Expression>
+    > arguments;
+
+    explicit CallExpression(
+        const std::string& callee)
+        : callee(callee)
     {
     }
 };

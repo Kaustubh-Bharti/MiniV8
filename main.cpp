@@ -1,35 +1,41 @@
 #include <iostream>
 
-#include "lexer/Lexer.h"
-#include "parser/Parser.h"
-#include "ast/ASTPrinter.h"
+#include "runtime/Interpreter.h"
+#include "ast/AST.h"
 
 int main()
 {
-    Lexer lexer(
-        "function greet() {}"
-    );
+    Interpreter interpreter;
 
-    auto tokens =
-        lexer.tokenize();
+    interpreter
+        .getEnvironment()
+        .define(
+            "x",
+            JSValue(5.0)
+        );
 
-    Parser parser(tokens);
+    auto expression =
+        std::make_unique<
+            BinaryExpression>(
+                std::make_unique<
+                    Identifier>("x"),
 
-    auto function =
-        parser.parseFunctionDeclaration();
+                "+",
 
-    if (!function)
-    {
-        std::cout
-            << "Parse failed"
-            << std::endl;
+                std::make_unique<
+                    NumberLiteral>(10)
+            );
 
-        return 0;
-    }
+    auto result =
+        interpreter.evaluate(
+            expression.get()
+        );
 
-    printAST(
-        function.get()
-    );
+    std::cout
+        << std::get<double>(
+            result.value
+        )
+        << std::endl;
 
     return 0;
 }

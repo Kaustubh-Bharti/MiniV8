@@ -1,0 +1,184 @@
+#include "Interpreter.h"
+#include <variant>
+#include <stdexcept>
+
+JSValue Interpreter::evaluate(
+    Expression* expression)
+{
+    if (!expression)
+    {
+        throw std::runtime_error(
+            "Null expression");
+    }
+
+    if (auto number =
+        dynamic_cast<
+            NumberLiteral*>(
+                expression))
+    {
+        return JSValue(
+            number->value
+        );
+    }
+
+    if (auto boolean =
+        dynamic_cast<
+            BooleanLiteral*>(
+                expression))
+    {
+        return JSValue(
+            boolean->value
+        );
+    }
+
+    if (auto stringLiteral =
+        dynamic_cast<
+            StringLiteral*>(
+                expression))
+    {
+        return JSValue(
+            stringLiteral->value
+        );
+    }
+
+    if (auto identifier =
+        dynamic_cast<
+            Identifier*>(
+                expression))
+    {
+        return environment.get(
+            identifier->name
+        );
+    }
+
+    if (auto binary =
+    dynamic_cast<
+        BinaryExpression*>(
+            expression))
+    {
+        JSValue left =
+            evaluate(
+                binary->left.get()
+            );
+
+        JSValue right =
+            evaluate(
+                binary->right.get()
+            );
+
+        double lhs =
+            std::get<double>(
+                left.value
+            );
+
+        double rhs =
+            std::get<double>(
+                right.value
+            );
+
+        if (binary->op == "+")
+            return JSValue(lhs + rhs);
+
+        if (binary->op == "-")
+            return JSValue(lhs - rhs);
+
+        if (binary->op == "*")
+            return JSValue(lhs * rhs);
+
+        if (binary->op == "/")
+            return JSValue(lhs / rhs);
+
+        if (binary->op == "%")
+            return JSValue(
+                static_cast<double>(
+                    static_cast<int>(lhs)
+                    %
+                    static_cast<int>(rhs)
+                )
+            );
+
+        if (binary->op == ">")
+            return JSValue(lhs > rhs);
+
+        if (binary->op == "<")
+            return JSValue(lhs < rhs);
+
+        if (binary->op == ">=")
+            return JSValue(lhs >= rhs);
+
+        if (binary->op == "<=")
+            return JSValue(lhs <= rhs);
+
+        if (binary->op == "==")
+            return JSValue(lhs == rhs);
+
+        if (binary->op == "===")
+            return JSValue(lhs == rhs);
+
+        if (binary->op == "!=")
+            return JSValue(lhs != rhs);
+
+        if (binary->op == "!==")
+            return JSValue(lhs != rhs);
+    }
+
+    throw std::runtime_error(
+        "Unsupported expression");
+}
+
+void Interpreter::execute(
+    Statement* statement)
+{
+    if (!statement)
+    {
+        return;
+    }
+
+    if (auto variable =
+        dynamic_cast<
+            VariableDeclaration*>(
+                statement))
+    {
+        JSValue value =
+            evaluate(
+                variable->initializer.get()
+            );
+
+        environment.define(
+            variable->name,
+            value
+        );
+
+        return;
+    }
+
+    if (auto expressionStatement =
+    dynamic_cast<
+        ExpressionStatement*>(
+            statement))
+    {
+        evaluate(
+            expressionStatement
+                ->expression.get()
+        );
+
+        return;
+    }
+}
+
+void Interpreter::executeProgram(
+    Program* program)
+{
+    if (!program)
+    {
+        return;
+    }
+
+    for (auto& statement :
+         program->statements)
+    {
+        execute(
+            statement.get()
+        );
+    }
+}

@@ -138,3 +138,24 @@ void printAST(
         << std::endl;
 }
 
+void printAST(
+    const ReturnStatement* statement,
+    int indent)
+{
+    if (!statement)
+    {
+        return;
+    }
+
+    printIndent(indent);
+
+    std::cout
+        << "ReturnStatement"
+        << std::endl;
+
+    printAST(
+        statement->value.get(),
+        indent + 1
+    );
+}
+

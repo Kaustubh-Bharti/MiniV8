@@ -50,4 +50,14 @@ public:
     std::unique_ptr<WhileStatement> parseWhileStatement();
 
     std::unique_ptr<FunctionDeclaration> parseFunctionDeclaration();
+
+    std::unique_ptr<ReturnStatement> parseReturnStatement();
+
+    std::unique_ptr<BlockStatement> parseBlockStatement();
+
+    std::unique_ptr<Program> parseProgram();
+
+    std::unique_ptr<Statement> parseStatement();
+
+    std::unique_ptr<CallExpression> parseCallExpression();
 };
