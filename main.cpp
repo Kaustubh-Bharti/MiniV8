@@ -7,68 +7,29 @@ int main()
 {
     Interpreter interpreter;
 
-    auto initializer =
-        std::make_unique<
-            VariableDeclaration>(
-                false,
-                "i",
-                std::make_unique<
-                    NumberLiteral>(0)
-            );
-
-    auto condition =
+    auto expression =
         std::make_unique<
             BinaryExpression>(
                 std::make_unique<
-                    Identifier>("i"),
+                    StringLiteral>(
+                        "Value = "
+                    ),
 
-                "<",
-
-                std::make_unique<
-                    NumberLiteral>(3)
-            );
-
-    auto increment =
-        std::make_unique<
-            AssignmentExpression>(
-                "i",
+                "+",
 
                 std::make_unique<
-                    BinaryExpression>(
-                        std::make_unique<
-                            Identifier>("i"),
-
-                        "+",
-
-                        std::make_unique<
-                            NumberLiteral>(1)
+                    NumberLiteral>(
+                        42
                     )
             );
 
-    auto body =
-        std::make_unique<
-            BlockStatement>();
-
-    auto loop =
-        std::make_unique<
-            ForStatement>(
-                std::move(initializer),
-                std::move(condition),
-                std::move(increment),
-                std::move(body)
-            );
-
-    interpreter.execute(
-        loop.get()
-    );
-
     auto result =
-        interpreter
-            .getEnvironment()
-            .get("i");
+        interpreter.evaluate(
+            expression.get()
+        );
 
     std::cout
-        << std::get<double>(
+        << std::get<std::string>(
             result.value
         )
         << std::endl;

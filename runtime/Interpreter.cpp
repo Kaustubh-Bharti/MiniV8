@@ -89,6 +89,61 @@ JSValue Interpreter::evaluate(
                 binary->right.get()
             );
 
+        if (binary->op == "+")
+        {
+            if (
+                std::holds_alternative<
+                    std::string>(
+                        left.value)
+                ||
+                std::holds_alternative<
+                    std::string>(
+                        right.value))
+            {
+                std::string lhs;
+
+                std::string rhs;
+
+                if (
+                    std::holds_alternative<
+                        std::string>(
+                            left.value))
+                {
+                    lhs =
+                        std::get<std::string>(
+                            left.value);
+                }
+                else
+                {
+                    lhs =
+                        std::to_string(
+                            std::get<double>(
+                                left.value));
+                }
+
+                if (
+                    std::holds_alternative<
+                        std::string>(
+                            right.value))
+                {
+                    rhs =
+                        std::get<std::string>(
+                            right.value);
+                }
+                else
+                {
+                    rhs =
+                        std::to_string(
+                            std::get<double>(
+                                right.value));
+                }
+
+                return JSValue(
+                    lhs + rhs
+                );
+            }
+        }
+
         double lhs =
             std::get<double>(
                 left.value
