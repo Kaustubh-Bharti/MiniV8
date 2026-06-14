@@ -1,23 +1,35 @@
 #include <iostream>
+
 #include "lexer/Lexer.h"
-#include "lexer/TokenUtils.h"
+#include "parser/Parser.h"
+#include "ast/ASTPrinter.h"
 
 int main()
 {
     Lexer lexer(
-        "switch case default break continue do new"
+        "let x = value > 5;"
     );
 
-    auto tokens = lexer.tokenize();
+    auto tokens =
+        lexer.tokenize();
 
-    for (const auto& token : tokens)
+    Parser parser(tokens);
+
+    auto declaration =
+        parser.parseVariableDeclaration();
+
+    if (!declaration)
     {
         std::cout
-            << tokenTypeToString(token.type)
-            << " : "
-            << token.value
+            << "Parse failed"
             << std::endl;
+
+        return 0;
     }
+
+    printAST(
+        declaration->initializer.get()
+    );
 
     return 0;
 }

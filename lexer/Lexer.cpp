@@ -331,9 +331,54 @@ bool Lexer::match(char expected)
     return true;
 }
 
-void Lexer::addToken(std::vector<Token>& tokens, TokenType type)
+void Lexer::addToken(std::vector<Token>& tokens,TokenType type)
 {
-    tokens.emplace_back(type, "");
+    std::string value;
+
+    switch(type)
+    {
+    case TokenType::Plus:
+        value = "+";
+        break;
+
+    case TokenType::Minus:
+        value = "-";
+        break;
+
+    case TokenType::Star:
+        value = "*";
+        break;
+
+    case TokenType::Slash:
+        value = "/";
+        break;
+
+    case TokenType::Percent:
+        value = "%";
+        break;
+
+    case TokenType::Less:
+        value = "<";
+        break;
+
+    case TokenType::LessEqual:
+        value = "<=";
+        break;
+
+    case TokenType::Greater:
+        value = ">";
+        break;
+
+    case TokenType::GreaterEqual:
+        value = ">=";
+        break;
+
+    default:
+        value = "";
+        break;
+    }
+
+    tokens.emplace_back(type, value);
 }
 
 bool Lexer::isAlpha(char c) const
