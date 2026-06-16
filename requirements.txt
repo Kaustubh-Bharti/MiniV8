@@ -1,0 +1,21 @@
+# MiniV8 Build Requirements
+#
+# This file lists the tools and dependencies required to build MiniV8.
+# MiniV8 is a pure C++ project with no external library dependencies.
+
+# Build Tools
+# -----------
+# CMake >= 3.15           https://cmake.org/download/
+# C++17 compatible compiler (one of the following):
+#   - MSVC (Visual Studio 2022)      [Windows]
+#   - GCC >= 8                        [Linux]
+#   - Clang >= 7                      [macOS / Linux]
+#   - Apple Clang (Xcode CLI Tools)   [macOS]
+
+# C++ Standard
+# -------------
+# C++17 (set via CMAKE_CXX_STANDARD in CMakeLists.txt)
+
+# External Libraries
+# -------------------
+# None — MiniV8 uses only the C++ Standard Library.

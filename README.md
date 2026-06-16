@@ -55,12 +55,60 @@ MiniV8 is a lightweight JavaScript-inspired interpreter written in C++. The proj
 ### Requirements
 
 * CMake 3.15+
-* Visual Studio 2022 (MSVC) or any C++17 compiler
+* A C++17 compatible compiler (see platform-specific instructions below)
 * C++17 Standard
 
-### Build Steps
+See [requirements.txt](requirements.txt) for the full list of build dependencies.
 
-Open PowerShell in the project root directory.
+---
+
+### Windows
+
+#### Prerequisites
+
+1. Install [CMake](https://cmake.org/download/) (3.15 or later). During installation, select **"Add CMake to the system PATH"**.
+2. Install [Visual Studio 2022](https://visualstudio.microsoft.com/) with the **"Desktop development with C++"** workload (this includes MSVC and the Windows SDK).
+
+#### Build Steps
+
+Open **PowerShell** or **Developer Command Prompt** in the project root directory.
+
+Configure the project:
+
+```powershell
+cmake -B build
+```
+
+Build the project:
+
+```powershell
+cmake --build build
+```
+
+The executable will be generated at:
+
+```text
+build\Debug\MiniV8.exe
+```
+
+---
+
+### macOS
+
+#### Prerequisites
+
+1. Install the **Xcode Command Line Tools** (provides Apple Clang and Make):
+   ```bash
+   xcode-select --install
+   ```
+2. Install **CMake** via [Homebrew](https://brew.sh/):
+   ```bash
+   brew install cmake
+   ```
+
+#### Build Steps
+
+Open **Terminal** in the project root directory.
 
 Configure the project:
 
@@ -74,32 +122,100 @@ Build the project:
 cmake --build build
 ```
 
-The executable will be generated in:
+The executable will be generated at:
 
 ```text
-build/Debug/MiniV8.exe
+build/MiniV8
+```
+
+---
+
+### Linux
+
+#### Prerequisites
+
+1. Install **CMake**, **GCC** (or **Clang**), and **Make** using your distribution's package manager:
+
+   **Ubuntu / Debian:**
+   ```bash
+   sudo apt update
+   sudo apt install cmake g++ make
+   ```
+
+   **Fedora:**
+   ```bash
+   sudo dnf install cmake gcc-c++ make
+   ```
+
+   **Arch Linux:**
+   ```bash
+   sudo pacman -S cmake gcc make
+   ```
+
+#### Build Steps
+
+Open a **terminal** in the project root directory.
+
+Configure the project:
+
+```bash
+cmake -B build
+```
+
+Build the project:
+
+```bash
+cmake --build build
+```
+
+The executable will be generated at:
+
+```text
+build/MiniV8
 ```
 
 ---
 
 ## Running the Project
 
-### Run a single JavaScript file
+### Windows
 
-```bash
+Run a single JavaScript file:
+
+```powershell
 .\build\Debug\MiniV8.exe path/to/file.js
 ```
 
-### Run all test files in a directory
+Run all test files in a directory:
 
-```bash
+```powershell
 .\build\Debug\MiniV8.exe --test-dir tests
 ```
 
-### Show usage help
+Show usage help:
+
+```powershell
+.\build\Debug\MiniV8.exe
+```
+
+### macOS / Linux
+
+Run a single JavaScript file:
 
 ```bash
-.\build\Debug\MiniV8.exe
+./build/MiniV8 path/to/file.js
+```
+
+Run all test files in a directory:
+
+```bash
+./build/MiniV8 --test-dir tests
+```
+
+Show usage help:
+
+```bash
+./build/MiniV8
 ```
 
 ---
@@ -139,14 +255,26 @@ console.log(greeting + " " + name);
 
 Run it:
 
-```bash
+**Windows:**
+```powershell
 .\build\Debug\MiniV8.exe tests/my_test.js
+```
+
+**macOS / Linux:**
+```bash
+./build/MiniV8 tests/my_test.js
 ```
 
 Or run all tests at once:
 
-```bash
+**Windows:**
+```powershell
 .\build\Debug\MiniV8.exe --test-dir tests
+```
+
+**macOS / Linux:**
+```bash
+./build/MiniV8 --test-dir tests
 ```
 
 ---
