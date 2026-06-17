@@ -864,6 +864,17 @@ JSValue Interpreter::evaluate(
                 std::get<double>(
                     idxVal.value));
 
+            // Auto-grow array if index is
+            // beyond current size (JS behavior)
+            if (idx >= 0 &&
+                idx >= static_cast<int>(
+                    arr.size()))
+            {
+                arr.resize(
+                    idx + 1,
+                    JSValue::makeUndefined());
+            }
+
             if (idx >= 0 &&
                 idx < static_cast<int>(
                     arr.size()))
@@ -871,14 +882,128 @@ JSValue Interpreter::evaluate(
                 arr[idx] = newVal;
             }
 
-            // Write back to variable
+            // Write back to the root variable
+            // Walk up the object chain for
+            // nested access like a[i][j] = val
+            Expression* root =
+                idxAssign->object.get();
+
+            while (auto nested =
+                dynamic_cast<IndexExpression*>(
+                    root))
+            {
+                root = nested->object.get();
+            }
+
             auto ident = dynamic_cast<
-                Identifier*>(
-                    idxAssign->object.get());
+                Identifier*>(root);
             if (ident)
             {
-                environment.assign(
-                    ident->name, objVal);
+                // For nested access, re-read
+                // the root and update in place
+                if (root !=
+                    idxAssign->object.get())
+                {
+                    // Nested: re-evaluate and
+                    // assign at each level
+                    auto rootVal =
+                        environment.get(
+                            ident->name);
+
+                    // Re-evaluate and set
+                    // through the chain
+                    std::vector<int> indices;
+                    Expression* cur =
+                        idxAssign->object.get();
+
+                    while (auto ie =
+                        dynamic_cast<
+                            IndexExpression*>(
+                                cur))
+                    {
+                        auto iv = evaluate(
+                            ie->index.get());
+                        indices.push_back(
+                            static_cast<int>(
+                                std::get<double>(
+                                    iv.value)));
+                        cur = ie->object.get();
+                    }
+
+                    // Walk from root to target
+                    JSValue* target = &rootVal;
+                    for (int i =
+                        static_cast<int>(
+                            indices.size()) - 1;
+                        i >= 0; i--)
+                    {
+                        if (target->isArray())
+                        {
+                            auto& a = std::get<
+                                std::vector<
+                                    JSValue>>(
+                                target->value);
+
+                            int ai = indices[i];
+                            if (ai >= 0 &&
+                                ai >=
+                                static_cast<int>(
+                                    a.size()))
+                            {
+                                a.resize(
+                                    ai + 1,
+                                    JSValue::
+                                    makeUndefined()
+                                );
+                            }
+                            if (ai >= 0 &&
+                                ai <
+                                static_cast<int>(
+                                    a.size()))
+                            {
+                                target = &a[ai];
+                            }
+                        }
+                    }
+
+                    // Now set final index
+                    if (target->isArray())
+                    {
+                        auto& a = std::get<
+                            std::vector<JSValue>>(
+                            target->value);
+
+                        int fi =
+                            static_cast<int>(
+                                std::get<double>(
+                                    idxVal.value));
+                        if (fi >= 0 &&
+                            fi >=
+                            static_cast<int>(
+                                a.size()))
+                        {
+                            a.resize(
+                                fi + 1,
+                                JSValue::
+                                makeUndefined());
+                        }
+                        if (fi >= 0 &&
+                            fi <
+                            static_cast<int>(
+                                a.size()))
+                        {
+                            a[fi] = newVal;
+                        }
+                    }
+
+                    environment.assign(
+                        ident->name, rootVal);
+                }
+                else
+                {
+                    environment.assign(
+                        ident->name, objVal);
+                }
             }
         }
 
