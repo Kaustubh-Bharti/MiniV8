@@ -1236,7 +1236,43 @@ std::unique_ptr<ReturnStatement> Parser::parseReturnStatement()
 
 std::unique_ptr<BlockStatement> Parser::parseBlockStatement()
 {
-    if (!match(TokenType::LeftBrace))
+    // Braced block: { ... }
+    if (match(TokenType::LeftBrace))
+    {
+        auto block =
+            std::make_unique<BlockStatement>();
+
+        while (
+            !check(TokenType::RightBrace) &&
+            !isAtEnd()
+        )
+        {
+            auto statement =
+                parseStatement();
+
+            if (!statement)
+            {
+                return nullptr;
+            }
+
+            block->statements.push_back(
+                std::move(statement)
+            );
+        }
+
+        if (!match(TokenType::RightBrace))
+        {
+            return nullptr;
+        }
+
+        return block;
+    }
+
+    // Braceless single-statement body
+    // e.g. if (cond) return 1;
+    auto statement = parseStatement();
+
+    if (!statement)
     {
         return nullptr;
     }
@@ -1244,28 +1280,9 @@ std::unique_ptr<BlockStatement> Parser::parseBlockStatement()
     auto block =
         std::make_unique<BlockStatement>();
 
-    while (
-        !check(TokenType::RightBrace) &&
-        !isAtEnd()
-    )
-    {
-        auto statement =
-            parseStatement();
-
-        if (!statement)
-        {
-            return nullptr;
-        }
-
-        block->statements.push_back(
-            std::move(statement)
-        );
-    }
-
-    if (!match(TokenType::RightBrace))
-    {
-        return nullptr;
-    }
+    block->statements.push_back(
+        std::move(statement)
+    );
 
     return block;
 }
